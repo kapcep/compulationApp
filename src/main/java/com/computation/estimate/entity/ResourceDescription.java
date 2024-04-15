@@ -3,38 +3,38 @@ package com.computation.estimate.entity;
 public class ResourceDescription {
 
 	private int resourceDescriptionId;
-	private CompulationPosition compulationPosition;
+	private ComputationPosition computationPosition;
 	private MarkOfResourceDescrition markOfResourceDescrition;
 	private String resourceCode;
-	private double compulationResourcePrice;
+	private double computationResourcePrice;
 	private double standardConsumptionOfTheResource;
 	private String ResourceDescriptionName;
 	private String resourceDescriptionUnitOfMeasurement;
 
 	public ResourceDescription(int resourceDescriptionId,
-			CompulationPosition compulationPosition,
+			ComputationPosition computationPosition,
 			MarkOfResourceDescrition markOfResourceDescrition,
-			String resourceCode, double compulationResourcePrice,
+			String resourceCode, double computationResourcePrice,
 			double standardConsumptionOfTheResource,
 			String resourceDescriptionName,
 			String resourceDescriptionUnitOfMeasurement) {
 		this.resourceDescriptionId = resourceDescriptionId;
-		this.compulationPosition = compulationPosition;
+		this.computationPosition = computationPosition;
 		this.markOfResourceDescrition = markOfResourceDescrition;
 		this.resourceCode = resourceCode;
-		this.compulationResourcePrice = compulationResourcePrice;
+		this.computationResourcePrice = computationResourcePrice;
 		this.standardConsumptionOfTheResource = standardConsumptionOfTheResource;
 		ResourceDescriptionName = resourceDescriptionName;
 		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
 	}
 
-	public CompulationPosition getCompulationPosition() {
-		return compulationPosition;
+	public ComputationPosition getComputationPosition() {
+		return computationPosition;
 	}
 
-	public void setCompulationPosition(
-			CompulationPosition compulationPosition) {
-		this.compulationPosition = compulationPosition;
+	public void setComputationPosition(
+			ComputationPosition computationPosition) {
+		this.computationPosition = computationPosition;
 	}
 
 	public MarkOfResourceDescrition getMarkOfResourceDescrition() {
@@ -54,12 +54,12 @@ public class ResourceDescription {
 		this.resourceCode = resourceCode;
 	}
 
-	public double getCompulationResourcePrice() {
-		return compulationResourcePrice;
+	public double getComputationResourcePrice() {
+		return computationResourcePrice;
 	}
 
-	public void setCompulationResourcePrice(double compulationResourcePrice) {
-		this.compulationResourcePrice = compulationResourcePrice;
+	public void setComputationResourcePrice(double computationResourcePrice) {
+		this.computationResourcePrice = computationResourcePrice;
 	}
 
 	public double getStandardConsumptionOfTheResource() {
