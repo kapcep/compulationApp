@@ -2,6 +2,7 @@ package com.computation.estimate.entity;
 
 public class CompulationPosition {
 
+	private int compulationPositionId;
 	private Compulation compulation;
 	private CompulationTypePosition compulationTypePosition;
 	private int positionNumberInCompulation;
@@ -12,12 +13,14 @@ public class CompulationPosition {
 	private double amount;
 	private double compulationPositionPriceValue;
 
-	public CompulationPosition(Compulation compulation,
+	public CompulationPosition(int compulationPositionId,
+			Compulation compulation,
 			CompulationTypePosition compulationTypePosition,
 			int positionNumberInCompulation, String positionCode,
 			String explantion, String compulationPositionName,
 			CompulationPositionUnitOfMeasurement compulationPositionUnitOfMeasurement,
 			double amount, double compulationPositionPriceValue) {
+		this.compulationPositionId = compulationPositionId;
 		this.compulation = compulation;
 		this.compulationTypePosition = compulationTypePosition;
 		this.positionNumberInCompulation = positionNumberInCompulation;
@@ -103,6 +106,14 @@ public class CompulationPosition {
 	public void setCompulationPositionPriceValue(
 			double compulationPositionPriceValue) {
 		this.compulationPositionPriceValue = compulationPositionPriceValue;
+	}
+
+	public int getCompulationPositionId() {
+		return compulationPositionId;
+	}
+
+	public void setCompulationPositionId(int compulationPositionId) {
+		this.compulationPositionId = compulationPositionId;
 	}
 
 }

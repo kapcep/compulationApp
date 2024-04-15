@@ -2,12 +2,14 @@ package com.computation.estimate.entity;
 
 public class Compulation {
 
+	private int compulationId;
 	private String compulationNumber;
 	private String compulationName;
 	private double compulationValue;
 
-	public Compulation(String compulationNumber, String compulationName,
-			double compulationValue) {
+	public Compulation(int compulationId, String compulationNumber,
+			String compulationName, double compulationValue) {
+		this.compulationId = compulationId;
 		this.compulationNumber = compulationNumber;
 		this.compulationName = compulationName;
 		this.compulationValue = compulationValue;
@@ -35,6 +37,14 @@ public class Compulation {
 
 	public void setCompulationValue(double compulationValue) {
 		this.compulationValue = compulationValue;
+	}
+
+	public int getCompulationId() {
+		return compulationId;
+	}
+
+	public void setCompulationId(int compulationId) {
+		this.compulationId = compulationId;
 	}
 
 }

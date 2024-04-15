@@ -2,6 +2,7 @@ package com.computation.estimate.entity;
 
 public class ResourceDescription {
 
+	private int resourceDescriptionId;
 	private CompulationPosition compulationPosition;
 	private MarkOfResourceDescrition markOfResourceDescrition;
 	private String resourceCode;
@@ -10,18 +11,21 @@ public class ResourceDescription {
 	private String ResourceDescriptionName;
 	private String resourceDescriptionUnitOfMeasurement;
 
-	public ResourceDescription(CompulationPosition compulationPosition,
+	public ResourceDescription(int resourceDescriptionId,
+			CompulationPosition compulationPosition,
 			MarkOfResourceDescrition markOfResourceDescrition,
 			String resourceCode, double compulationResourcePrice,
 			double standardConsumptionOfTheResource,
-			String resourceDescriptionName, String unitOfMeasurement) {
+			String resourceDescriptionName,
+			String resourceDescriptionUnitOfMeasurement) {
+		this.resourceDescriptionId = resourceDescriptionId;
 		this.compulationPosition = compulationPosition;
 		this.markOfResourceDescrition = markOfResourceDescrition;
 		this.resourceCode = resourceCode;
 		this.compulationResourcePrice = compulationResourcePrice;
 		this.standardConsumptionOfTheResource = standardConsumptionOfTheResource;
 		ResourceDescriptionName = resourceDescriptionName;
-		this.resourceDescriptionUnitOfMeasurement = unitOfMeasurement;
+		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
 	}
 
 	public CompulationPosition getCompulationPosition() {
@@ -81,6 +85,23 @@ public class ResourceDescription {
 
 	public void setUnitOfMeasurement(String unitOfMeasurement) {
 		this.resourceDescriptionUnitOfMeasurement = unitOfMeasurement;
+	}
+
+	public int getResourceDescriptionId() {
+		return resourceDescriptionId;
+	}
+
+	public void setResourceDescriptionId(int resourceDescriptionId) {
+		this.resourceDescriptionId = resourceDescriptionId;
+	}
+
+	public String getResourceDescriptionUnitOfMeasurement() {
+		return resourceDescriptionUnitOfMeasurement;
+	}
+
+	public void setResourceDescriptionUnitOfMeasurement(
+			String resourceDescriptionUnitOfMeasurement) {
+		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
 	}
 
 }
