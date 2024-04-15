@@ -1,7 +1,7 @@
 package com.computation.estimate.entity;
 
 public class CompulationPositionUnitOfMeasurement {
-	
+
 	private String compulationPositionUnitOfMeasurementName;
 
 	public CompulationPositionUnitOfMeasurement(
@@ -16,6 +16,12 @@ public class CompulationPositionUnitOfMeasurement {
 	public void setCompulationPositionUnitOfMeasurementName(
 			String compulationPositionUnitOfMeasurementName) {
 		this.compulationPositionUnitOfMeasurementName = compulationPositionUnitOfMeasurementName;
+	}
+
+	@Override
+	public String toString() {
+		return "CompulationPositionUnitOfMeasurement [compulationPositionUnitOfMeasurementName="
+				+ compulationPositionUnitOfMeasurementName + "]";
 	}
 
 }
