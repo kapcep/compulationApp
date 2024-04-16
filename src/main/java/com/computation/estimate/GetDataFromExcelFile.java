@@ -11,6 +11,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -22,6 +24,7 @@ import com.computation.estimate.entity.Computation;
 import com.computation.estimate.entity.ComputationPosition;
 import com.computation.estimate.entity.ComputationPositionUnitOfMeasurement;
 import com.computation.estimate.entity.ComputationTypePosition;
+import com.computation.estimate.entity.MarkOfResourceDescrition;
 import com.computation.estimate.entity.ResourceDescription;
 import com.computation.estimate.entity.ResourceDescriptionUnitOfMeasurement;
 
@@ -45,37 +48,6 @@ public class GetDataFromExcelFile {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private static List<ResourceDescription> getResourceDescription(
-			Workbook workbook) {
-
-		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
-		int lastRowNum = sheet.getLastRowNum();
-		List<ResourceDescription> resourceDescriptions = new ArrayList<>();
-
-		var computationPositions = getComputationPosition(workbook);
-		var computationPositionUnitOfMeasurements = getResourceDescriptionUnitOfMeasurements(
-				workbook);
-
-		for (int i = 1; i < lastRowNum + 1; i++) {
-
-			Row row = sheet.getRow(i);
-
-			// get resourceDescriptionId
-			final int resourceDescriptionId = (int) row.getCell(0)
-					.getNumericCellValue();
-
-			// get ComputationPosition
-			final int computationPositionId = (int) row.getCell(1)
-					.getNumericCellValue();
-			final ComputationPosition computationPosition = computationPositions
-					.stream()
-					.filter(c -> c.getAmount() == computationPositionId)
-					.findFirst().get();
-		}
-
-		return resourceDescriptions;
 	}
 
 	private static List<Computation> getComputations(Workbook workbook) {
@@ -174,6 +146,94 @@ public class GetDataFromExcelFile {
 		return computationPositions;
 	}
 
+	private static List<ResourceDescription> getResourceDescription(
+			Workbook workbook) {
+
+		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
+		int lastRowNum = sheet.getLastRowNum();
+		List<ResourceDescription> resourceDescriptions = new ArrayList<>();
+
+		var computationPositions = getComputationPosition(workbook);
+		var resourceDescriptionUnitOfMeasurements = getResourceDescriptionUnitOfMeasurements(
+				workbook);
+
+		for (int i = 1; i < lastRowNum + 1; i++) {
+
+			Row row = sheet.getRow(i);
+
+			// get resourceDescriptionId
+			final int resourceDescriptionId = (int) row.getCell(0)
+					.getNumericCellValue();
+
+			// get ComputationPosition
+			final int computationPositionId = (int) row.getCell(1)
+					.getNumericCellValue();
+			final ComputationPosition computationPosition = computationPositions
+					.stream()
+					.filter(c -> c
+							.getComputationPositionId() == computationPositionId)
+					.findFirst().get();
+
+			// get MarkOfResourceDescrition
+			final String markOfResourceDescritionName = row.getCell(3)
+					.getStringCellValue();
+			final MarkOfResourceDescrition markOfResourceDescrition = getMarkOfResourceDescritionByName(
+					markOfResourceDescritionName);
+
+			// get resourceCode
+			final String resourceCode = row.getCell(4).getStringCellValue();
+
+			// get computationResourcePrice
+			final double computationResourcePrice = row.getCell(7)
+					.getNumericCellValue();
+
+			// get standardConsumptionOfTheResource
+			Cell standardConsumptionOfTheResourceCell = row.getCell(11);
+			double standardConsumptionOfTheResource = 0;
+			if (standardConsumptionOfTheResourceCell.getCellType()
+					.equals(CellType.NUMERIC)) {
+				standardConsumptionOfTheResource = standardConsumptionOfTheResourceCell
+						.getNumericCellValue();
+			}
+
+			// get resourceDescriptionName
+			final String resourceDescriptionName = row.getCell(13)
+					.getStringCellValue();
+
+			// get resourceDescriptionUnitOfMeasurement
+
+			final Cell resourceDescriptionUnitOfMeasurementCell = row
+					.getCell(8);
+
+			String resourceDescriptionUnitOfMeasurementCellValue = "";
+
+//			if (resourceDescriptionUnitOfMeasurementCell.getCellType()
+//					.equals(CellType.STRING)) {
+//				resourceDescriptionUnitOfMeasurementCellValue = resourceDescriptionUnitOfMeasurementCell
+//						.getStringCellValue();
+//			}
+
+			var resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurements
+					.stream()
+					.filter(c -> c.getResourceDescriptionUnitOfMeasurementName()
+							.equals(resourceDescriptionUnitOfMeasurementCellValue))
+					.findFirst().get();
+
+			// get ResourceDescription
+			ResourceDescription resourceDescription = new ResourceDescription(
+					resourceDescriptionId, computationPosition,
+					markOfResourceDescrition, resourceCode,
+					computationResourcePrice, standardConsumptionOfTheResource,
+					resourceDescriptionName,
+					resourceDescriptionUnitOfMeasurement);
+
+			resourceDescriptions.add(resourceDescription);
+
+		}
+
+		return resourceDescriptions;
+	}
+
 	private static List<ComputationPositionUnitOfMeasurement> getComputationPositionUnitOfMeasurements(
 			Workbook workbook) {
 
@@ -221,6 +281,17 @@ public class GetDataFromExcelFile {
 		for (ComputationTypePosition name : ComputationTypePosition.values()) {
 			if (name.getComputationTypeName()
 					.equals(computationTypePositionName)) {
+				return name;
+			}
+		}
+		return null;
+	}
+
+	private static MarkOfResourceDescrition getMarkOfResourceDescritionByName(
+			String markOfResourceDescritionName) {
+		for (MarkOfResourceDescrition name : MarkOfResourceDescrition
+				.values()) {
+			if (name.toString().equals(markOfResourceDescritionName)) {
 				return name;
 			}
 		}

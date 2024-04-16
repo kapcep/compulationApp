@@ -8,8 +8,8 @@ public class ResourceDescription {
 	private String resourceCode;
 	private double computationResourcePrice;
 	private double standardConsumptionOfTheResource;
-	private String ResourceDescriptionName;
-	private String resourceDescriptionUnitOfMeasurement;
+	private String resourceDescriptionName;
+	private ResourceDescriptionUnitOfMeasurement resourceDescriptionUnitOfMeasurement;
 
 	public ResourceDescription(int resourceDescriptionId,
 			ComputationPosition computationPosition,
@@ -17,15 +17,23 @@ public class ResourceDescription {
 			String resourceCode, double computationResourcePrice,
 			double standardConsumptionOfTheResource,
 			String resourceDescriptionName,
-			String resourceDescriptionUnitOfMeasurement) {
+			ResourceDescriptionUnitOfMeasurement resourceDescriptionUnitOfMeasurement) {
 		this.resourceDescriptionId = resourceDescriptionId;
 		this.computationPosition = computationPosition;
 		this.markOfResourceDescrition = markOfResourceDescrition;
 		this.resourceCode = resourceCode;
 		this.computationResourcePrice = computationResourcePrice;
 		this.standardConsumptionOfTheResource = standardConsumptionOfTheResource;
-		ResourceDescriptionName = resourceDescriptionName;
+		this.resourceDescriptionName = resourceDescriptionName;
 		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
+	}
+
+	public int getResourceDescriptionId() {
+		return resourceDescriptionId;
+	}
+
+	public void setResourceDescriptionId(int resourceDescriptionId) {
+		this.resourceDescriptionId = resourceDescriptionId;
 	}
 
 	public ComputationPosition getComputationPosition() {
@@ -72,35 +80,19 @@ public class ResourceDescription {
 	}
 
 	public String getResourceDescriptionName() {
-		return ResourceDescriptionName;
+		return resourceDescriptionName;
 	}
 
 	public void setResourceDescriptionName(String resourceDescriptionName) {
-		ResourceDescriptionName = resourceDescriptionName;
+		this.resourceDescriptionName = resourceDescriptionName;
 	}
 
-	public String getUnitOfMeasurement() {
-		return resourceDescriptionUnitOfMeasurement;
-	}
-
-	public void setUnitOfMeasurement(String unitOfMeasurement) {
-		this.resourceDescriptionUnitOfMeasurement = unitOfMeasurement;
-	}
-
-	public int getResourceDescriptionId() {
-		return resourceDescriptionId;
-	}
-
-	public void setResourceDescriptionId(int resourceDescriptionId) {
-		this.resourceDescriptionId = resourceDescriptionId;
-	}
-
-	public String getResourceDescriptionUnitOfMeasurement() {
+	public ResourceDescriptionUnitOfMeasurement getResourceDescriptionUnitOfMeasurement() {
 		return resourceDescriptionUnitOfMeasurement;
 	}
 
 	public void setResourceDescriptionUnitOfMeasurement(
-			String resourceDescriptionUnitOfMeasurement) {
+			ResourceDescriptionUnitOfMeasurement resourceDescriptionUnitOfMeasurement) {
 		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
 	}
 
