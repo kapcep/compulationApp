@@ -22,11 +22,14 @@ import com.computation.estimate.entity.Computation;
 import com.computation.estimate.entity.ComputationPosition;
 import com.computation.estimate.entity.ComputationPositionUnitOfMeasurement;
 import com.computation.estimate.entity.ComputationTypePosition;
+import com.computation.estimate.entity.ResourceDescription;
+import com.computation.estimate.entity.ResourceDescriptionUnitOfMeasurement;
 
 public class GetDataFromExcelFile {
 	private final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
 	private final static String computationPositionSheetName = "6_Позиція_ЛК";
-	private final static String ComputationPositionFilePath = "files/computationPosition_";
+	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
+	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(String[] args) {
@@ -34,15 +37,45 @@ public class GetDataFromExcelFile {
 				.create(new FileInputStream("files/451_du.xlsx"))) {
 
 			var computationPositions = getComputationPosition(workbook);
+			getResourceDescription(workbook);
 			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
 			getDataFromExcelFile
 					.writeComputationPositionsToTextFile(computationPositions);
 
-//			computationPositions.forEach(System.out::println);
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private static List<ResourceDescription> getResourceDescription(
+			Workbook workbook) {
+
+		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
+		int lastRowNum = sheet.getLastRowNum();
+		List<ResourceDescription> resourceDescriptions = new ArrayList<>();
+
+		var computationPositions = getComputationPosition(workbook);
+		var computationPositionUnitOfMeasurements = getResourceDescriptionUnitOfMeasurements(
+				workbook);
+
+		for (int i = 1; i < lastRowNum + 1; i++) {
+
+			Row row = sheet.getRow(i);
+
+			// get resourceDescriptionId
+			final int resourceDescriptionId = (int) row.getCell(0)
+					.getNumericCellValue();
+
+			// get ComputationPosition
+			final int computationPositionId = (int) row.getCell(1)
+					.getNumericCellValue();
+			final ComputationPosition computationPosition = computationPositions
+					.stream()
+					.filter(c -> c.getAmount() == computationPositionId)
+					.findFirst().get();
+		}
+
+		return resourceDescriptions;
 	}
 
 	private static List<Computation> getComputations(Workbook workbook) {
@@ -149,7 +182,7 @@ public class GetDataFromExcelFile {
 		List<ComputationPositionUnitOfMeasurement> computationPositionUnitOfMeasurements = new ArrayList<>();
 		int lastRowNum = sheet.getLastRowNum();
 
-		for (int i = 2; i < lastRowNum + 1; i++) {
+		for (int i = 1; i < lastRowNum + 1; i++) {
 			Row row = sheet.getRow(i);
 			unitOfMeasurementNameSet.add(row.getCell(8).getStringCellValue());
 		}
@@ -159,6 +192,27 @@ public class GetDataFromExcelFile {
 						.add(new ComputationPositionUnitOfMeasurement(u)));
 
 		return computationPositionUnitOfMeasurements;
+
+	}
+
+	private static List<ResourceDescriptionUnitOfMeasurement> getResourceDescriptionUnitOfMeasurements(
+			Workbook workbook) {
+
+		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
+		Set<String> unitOfMeasurementNameSet = new HashSet<>();
+		List<ResourceDescriptionUnitOfMeasurement> resourceDescriptionUnitOfMeasurements = new ArrayList<>();
+		int lastRowNum = sheet.getLastRowNum();
+
+		for (int i = 1; i < lastRowNum + 1; i++) {
+			Row row = sheet.getRow(i);
+			unitOfMeasurementNameSet.add(row.getCell(14).getStringCellValue());
+		}
+
+		unitOfMeasurementNameSet
+				.forEach(u -> resourceDescriptionUnitOfMeasurements
+						.add(new ResourceDescriptionUnitOfMeasurement(u)));
+
+		return resourceDescriptionUnitOfMeasurements;
 
 	}
 
@@ -179,7 +233,7 @@ public class GetDataFromExcelFile {
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH_mm_ss");
 
 		try (BufferedWriter writer = new BufferedWriter(
-				new FileWriter(ComputationPositionFilePath
+				new FileWriter(computationPositionFilePath
 						+ sdf.format(new Date()) + ".txt"))) {
 
 			writer.write(
@@ -193,7 +247,7 @@ public class GetDataFromExcelFile {
 			}
 			writer.flush();
 
-			logger.info("File was written to: " + ComputationPositionFilePath
+			logger.info("File was written to: " + computationPositionFilePath
 					+ sdf.format(new Date()) + ".txt");
 
 		} catch (IOException e) {
