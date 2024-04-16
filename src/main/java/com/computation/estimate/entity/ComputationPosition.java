@@ -118,17 +118,13 @@ public class ComputationPosition {
 
 	@Override
 	public String toString() {
-		return "ComputationPosition [computationPositionId="
-				+ computationPositionId + ", computation=" + computation
-				+ ", computationTypePosition=" + computationTypePosition
-				+ ", positionNumberInComputation=" + positionNumberInComputation
-				+ ", positionCode=" + positionCode + ", explanation="
-				+ explanation + ", computationPositionName="
-				+ computationPositionName
-				+ ", computationPositionUnitOfMeasurement="
-				+ computationPositionUnitOfMeasurement + ", amount=" + amount
-				+ ", computationPositionPriceValue="
-				+ computationPositionPriceValue + "]";
+		return "|" + computationPositionId + "|" + computation + "|"
+				+ computationTypePosition.getComputationTypeName() + "|"
+				+ positionNumberInComputation + "|" + positionCode + "|"
+				+ explanation + "|" + computationPositionName + "|"
+				+ computationPositionUnitOfMeasurement
+						.getComputationPositionUnitOfMeasurementName()
+				+ "|" + amount + "|" + computationPositionPriceValue + "|";
 	}
 
 }

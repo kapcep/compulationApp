@@ -1,8 +1,12 @@
 package com.computation.estimate;
 
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +15,8 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.computation.estimate.entity.Computation;
 import com.computation.estimate.entity.ComputationPosition;
@@ -18,15 +24,21 @@ import com.computation.estimate.entity.ComputationPositionUnitOfMeasurement;
 import com.computation.estimate.entity.ComputationTypePosition;
 
 public class GetDataFromExcelFile {
-	final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
-	final static String computationPositionSheetName = "6_Позиція_ЛК";
+	private final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
+	private final static String computationPositionSheetName = "6_Позиція_ЛК";
+	private final static String ComputationPositionFilePath = "files/computationPosition_";
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(String[] args) {
 		try (Workbook workbook = WorkbookFactory
 				.create(new FileInputStream("files/451_du.xlsx"))) {
 
 			var computationPositions = getComputationPosition(workbook);
-			computationPositions.forEach(System.out::println);
+			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
+			getDataFromExcelFile
+					.writeComputationPositionsToTextFile(computationPositions);
+
+//			computationPositions.forEach(System.out::println);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -159,5 +171,33 @@ public class GetDataFromExcelFile {
 			}
 		}
 		return null;
+	}
+
+	private void writeComputationPositionsToTextFile(
+			List<ComputationPosition> computationPositions) {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH_mm_ss");
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new FileWriter(ComputationPositionFilePath
+						+ sdf.format(new Date()) + ".txt"))) {
+
+			writer.write(
+					"|Номер п/п|Кошторис|Тип позиції|№ у ЛК|Шифр позиції|Обґрунтування"
+							+ "|Найменування|Одиниця виміру|Кількість|Кошторисна ціна|");
+			writer.newLine();
+
+			for (ComputationPosition computationPosition : computationPositions) {
+				writer.write(computationPosition.toString());
+				writer.newLine();
+			}
+			writer.flush();
+
+			logger.info("File was written to: " + ComputationPositionFilePath
+					+ sdf.format(new Date()) + ".txt");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

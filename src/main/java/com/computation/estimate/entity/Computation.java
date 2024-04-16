@@ -47,4 +47,9 @@ public class Computation {
 		this.сomputationId = сomputationId;
 	}
 
+	@Override
+	public String toString() {
+		return "ЛК " + сomputationNumber + " " + сomputationName;
+	}
+
 }
