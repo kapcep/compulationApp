@@ -34,11 +34,12 @@ public class GetDataFromExcelFile {
 	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
 	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
+	final static String outboxExcelFilePath = "files/451_du.xlsx";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(String[] args) {
 		try (Workbook workbook = WorkbookFactory
-				.create(new FileInputStream("files/451_du.xlsx"))) {
+				.create(new FileInputStream(outboxExcelFilePath))) {
 
 			var computationPositions = getComputationPosition(workbook);
 			var resourceDescriptions = getResourceDescription(workbook);
