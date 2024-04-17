@@ -96,4 +96,16 @@ public class ResourceDescription {
 		this.resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurement;
 	}
 
+	@Override
+	public String toString() {
+		return "|" + resourceDescriptionId + "|"
+				+ computationPosition.getComputationPositionName() + "|"
+				+ markOfResourceDescrition + "|" + resourceCode + "|"
+				+ resourceDescriptionName + "|"
+				+ resourceDescriptionUnitOfMeasurement
+						.getResourceDescriptionUnitOfMeasurementName()
+				+ "|" + standardConsumptionOfTheResource + "|"
+				+ computationResourcePrice + "|";
+	}
+
 }

@@ -33,6 +33,7 @@ public class GetDataFromExcelFile {
 	private final static String computationPositionSheetName = "6_Позиція_ЛК";
 	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
 	private final static String computationPositionFilePath = "files/computationPosition_";
+	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(String[] args) {
@@ -40,10 +41,14 @@ public class GetDataFromExcelFile {
 				.create(new FileInputStream("files/451_du.xlsx"))) {
 
 			var computationPositions = getComputationPosition(workbook);
-			getResourceDescription(workbook);
+			var resourceDescriptions = getResourceDescription(workbook);
 			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
+
 			getDataFromExcelFile
 					.writeComputationPositionsToTextFile(computationPositions);
+
+			getDataFromExcelFile
+					.writeResourceDescriptionsToTextFile(resourceDescriptions);
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -203,20 +208,22 @@ public class GetDataFromExcelFile {
 			// get resourceDescriptionUnitOfMeasurement
 
 			final Cell resourceDescriptionUnitOfMeasurementCell = row
-					.getCell(8);
+					.getCell(14);
 
 			String resourceDescriptionUnitOfMeasurementCellValue = "";
 
-//			if (resourceDescriptionUnitOfMeasurementCell.getCellType()
-//					.equals(CellType.STRING)) {
-//				resourceDescriptionUnitOfMeasurementCellValue = resourceDescriptionUnitOfMeasurementCell
-//						.getStringCellValue();
-//			}
+			if (resourceDescriptionUnitOfMeasurementCell.getCellType()
+					.equals(CellType.STRING)) {
+				resourceDescriptionUnitOfMeasurementCellValue = resourceDescriptionUnitOfMeasurementCell
+						.getStringCellValue();
+			}
+
+			final String resourceDescriptionUnitOfMeasurementCellValueFinal = resourceDescriptionUnitOfMeasurementCellValue;
 
 			var resourceDescriptionUnitOfMeasurement = resourceDescriptionUnitOfMeasurements
 					.stream()
 					.filter(c -> c.getResourceDescriptionUnitOfMeasurementName()
-							.equals(resourceDescriptionUnitOfMeasurementCellValue))
+							.equals(resourceDescriptionUnitOfMeasurementCellValueFinal))
 					.findFirst().get();
 
 			// get ResourceDescription
@@ -319,6 +326,34 @@ public class GetDataFromExcelFile {
 			writer.flush();
 
 			logger.info("File was written to: " + computationPositionFilePath
+					+ sdf.format(new Date()) + ".txt");
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void writeResourceDescriptionsToTextFile(
+			List<ResourceDescription> resourceDescriptions) {
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH_mm_ss");
+
+		try (BufferedWriter writer = new BufferedWriter(
+				new FileWriter(resourceDescriptionFilePath
+						+ sdf.format(new Date()) + ".txt"))) {
+
+			writer.write(
+					"|Номер п/п|Назва роботи|Мітка|Шифр ресурсу|Найменування ресурсу|Одиниця виміру|Нормативна витрата ресурсу"
+							+ "|Ціна ресурсу|");
+			writer.newLine();
+
+			for (ResourceDescription resourceDescription : resourceDescriptions) {
+				writer.write(resourceDescription.toString());
+				writer.newLine();
+			}
+			writer.flush();
+
+			logger.info("File was written to: " + resourceDescriptionFilePath
 					+ sdf.format(new Date()) + ".txt");
 
 		} catch (IOException e) {
