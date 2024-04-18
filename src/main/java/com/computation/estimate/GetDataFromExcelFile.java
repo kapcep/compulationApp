@@ -4,11 +4,14 @@ import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -35,6 +38,7 @@ public class GetDataFromExcelFile {
 	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
 	final static String outboxExcelFilePath = "files/451_du.xlsx";
+	final static String computationPositionContractPriceExcelFilePath = "files/U_393_ДЦ_КК_2.xls";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public static void main(String[] args) {
@@ -43,11 +47,11 @@ public class GetDataFromExcelFile {
 
 			var computationPositions = getComputationPosition(workbook);
 			var resourceDescriptions = getResourceDescription(workbook);
-			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
+			getComputationPositionContractPrice();
 
+			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
 			getDataFromExcelFile
 					.writeComputationPositionsToTextFile(computationPositions);
-
 			getDataFromExcelFile
 					.writeResourceDescriptionsToTextFile(resourceDescriptions);
 
@@ -87,6 +91,8 @@ public class GetDataFromExcelFile {
 		var computations = getComputations(workbook);
 		var computationPositionUnitOfMeasurements = getComputationPositionUnitOfMeasurements(
 				workbook);
+		var computationPositionContractPrices = getComputationPositionContractPrice();
+		int count = 0;
 
 		for (int i = 1; i < lastRowNum + 1; i++) {
 			Row row = sheet.getRow(i);
@@ -137,13 +143,24 @@ public class GetDataFromExcelFile {
 			double computationPositionPriceValue = row.getCell(12)
 					.getNumericCellValue();
 
+			// get computationPositionContractPrice
+			double computationPositionContractPrice = 0;
+
+			if (computationTypePosition.getComputationTypeName()
+					.equals(" Поз. Л.С. ")) {
+				count++;
+				computationPositionContractPrice = computationPositionContractPrices
+						.get(count);
+			}
+
 			// get ComputationPosition
 			ComputationPosition computationPosition = new ComputationPosition(
 					computationPositionId, computation, computationTypePosition,
 					positionNumberInComputation, positionCode, explanation,
 					computationPositionName,
 					computationPositionUnitOfMeasurement, amount,
-					computationPositionPriceValue);
+					computationPositionPriceValue,
+					computationPositionContractPrice);
 
 			// add ComputationPosition to collection
 			computationPositions.add(computationPosition);
@@ -306,6 +323,43 @@ public class GetDataFromExcelFile {
 		return null;
 	}
 
+	private static Map<Integer, Double> getComputationPositionContractPrice() {
+
+		Map<Integer, Double> computationPositionContractPriceMap = new HashMap<>();
+
+		try (Workbook workbook = WorkbookFactory.create(new FileInputStream(
+				computationPositionContractPriceExcelFilePath))) {
+			Sheet sheet = workbook.getSheetAt(0);
+			DecimalFormat df = new DecimalFormat("#,##0.00");
+
+			int count = 1;
+
+			for (int i = 14; i <= sheet.getLastRowNum(); i++) {
+				Row row = sheet.getRow(i);
+				Cell firstCell = row.getCell(0);
+
+				if (row != null && firstCell.getCellType() == CellType.NUMERIC
+						&& (int) firstCell.getNumericCellValue() == count) {
+
+					Cell computationPositionContractPriceCell = row.getCell(8);
+
+					Double computationPositionContractPrice = Double.valueOf(df
+							.format(computationPositionContractPriceCell
+									.getNumericCellValue() * 1.2)
+							.replaceAll(",", ".").replaceAll(" ", ""));
+
+					computationPositionContractPriceMap.put(count,
+							computationPositionContractPrice);
+					count++;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return computationPositionContractPriceMap;
+	}
+
 	private void writeComputationPositionsToTextFile(
 			List<ComputationPosition> computationPositions) {
 
@@ -317,7 +371,7 @@ public class GetDataFromExcelFile {
 
 			writer.write(
 					"|Номер п/п|Кошторис|Тип позиції|№ у ЛК|Шифр позиції|Обґрунтування"
-							+ "|Найменування|Одиниця виміру|Кількість|Кошторисна ціна|");
+							+ "|Найменування|Одиниця виміру|Кількість|Договірна ціна|Кошторисна ціна|");
 			writer.newLine();
 
 			for (ComputationPosition computationPosition : computationPositions) {
@@ -344,8 +398,8 @@ public class GetDataFromExcelFile {
 						+ sdf.format(new Date()) + ".txt"))) {
 
 			writer.write(
-					"|Номер п/п|Назва роботи|Мітка|Шифр ресурсу|Найменування ресурсу|Одиниця виміру|Нормативна витрата ресурсу"
-							+ "|Ціна ресурсу|");
+					"|Номер п/п|Назва роботи|Мітка|Шифр ресурсу|Найменування ресурсу"
+							+ "|Одиниця виміру|Нормативна витрата ресурсу|Ціна ресурсу|");
 			writer.newLine();
 
 			for (ResourceDescription resourceDescription : resourceDescriptions) {

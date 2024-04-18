@@ -12,6 +12,7 @@ public class ComputationPosition {
 	private ComputationPositionUnitOfMeasurement computationPositionUnitOfMeasurement;
 	private double amount;
 	private double computationPositionPriceValue;
+	private double computationPositionContractPrice;
 
 	public ComputationPosition(int computationPositionId,
 			Computation computation,
@@ -19,7 +20,8 @@ public class ComputationPosition {
 			int positionNumberInComputation, String positionCode,
 			String explanation, String computationPositionName,
 			ComputationPositionUnitOfMeasurement computationPositionUnitOfMeasurement,
-			double amount, double computationPositionPriceValue) {
+			double amount, double computationPositionPriceValue,
+			double computationPositionContractPrice) {
 		this.computationPositionId = computationPositionId;
 		this.computation = computation;
 		this.computationTypePosition = computationTypePosition;
@@ -30,6 +32,7 @@ public class ComputationPosition {
 		this.computationPositionUnitOfMeasurement = computationPositionUnitOfMeasurement;
 		this.amount = amount;
 		this.computationPositionPriceValue = computationPositionPriceValue;
+		this.computationPositionContractPrice = computationPositionContractPrice;
 	}
 
 	public Computation getComputation() {
@@ -64,14 +67,6 @@ public class ComputationPosition {
 
 	public void setPositionCode(String positionCode) {
 		this.positionCode = positionCode;
-	}
-
-	public String getExplantion() {
-		return explanation;
-	}
-
-	public void setExplantion(String explanation) {
-		this.explanation = explanation;
 	}
 
 	public String getComputationPositionName() {
@@ -116,6 +111,23 @@ public class ComputationPosition {
 		this.computationPositionId = computationPositionId;
 	}
 
+	public String getExplanation() {
+		return explanation;
+	}
+
+	public void setExplanation(String explanation) {
+		this.explanation = explanation;
+	}
+
+	public double getComputationPositionContractPrice() {
+		return computationPositionContractPrice;
+	}
+
+	public void setComputationPositionContractPrice(
+			double computationPositionContractPrice) {
+		this.computationPositionContractPrice = computationPositionContractPrice;
+	}
+
 	@Override
 	public String toString() {
 		return "|" + computationPositionId + "|" + computation + "|"
@@ -124,7 +136,8 @@ public class ComputationPosition {
 				+ explanation + "|" + computationPositionName + "|"
 				+ computationPositionUnitOfMeasurement
 						.getComputationPositionUnitOfMeasurementName()
-				+ "|" + amount + "|" + computationPositionPriceValue + "|";
+				+ "|" + amount + "|" + computationPositionContractPrice + "|"
+				+ computationPositionPriceValue + "|";
 	}
 
 }
