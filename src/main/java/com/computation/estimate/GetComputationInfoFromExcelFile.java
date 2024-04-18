@@ -31,7 +31,7 @@ import com.computation.estimate.entity.MarkOfResourceDescrition;
 import com.computation.estimate.entity.ResourceDescription;
 import com.computation.estimate.entity.ResourceDescriptionUnitOfMeasurement;
 
-public class GetDataFromExcelFile {
+public class GetComputationInfoFromExcelFile {
 	private final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
 	private final static String computationPositionSheetName = "6_Позиція_ЛК";
 	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
@@ -49,7 +49,7 @@ public class GetDataFromExcelFile {
 			var resourceDescriptions = getResourceDescription(workbook);
 			getComputationPositionContractPrice();
 
-			GetDataFromExcelFile getDataFromExcelFile = new GetDataFromExcelFile();
+			GetComputationInfoFromExcelFile getDataFromExcelFile = new GetComputationInfoFromExcelFile();
 			getDataFromExcelFile
 					.writeComputationPositionsToTextFile(computationPositions);
 			getDataFromExcelFile
