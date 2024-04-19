@@ -32,35 +32,17 @@ import com.computation.estimate.entity.ResourceDescription;
 import com.computation.estimate.entity.ResourceDescriptionUnitOfMeasurement;
 
 public class GetComputationInfoFromExcelFile {
+
 	private final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
 	private final static String computationPositionSheetName = "6_Позиція_ЛК";
 	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
 	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
-	final static String outboxExcelFilePath = "files/451_du.xlsx";
+
 	final static String computationPositionContractPriceExcelFilePath = "files/U_393_ДЦ_КК_2.xls";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-	public static void main(String[] args) {
-		try (Workbook workbook = WorkbookFactory
-				.create(new FileInputStream(outboxExcelFilePath))) {
-
-			var computationPositions = getComputationPosition(workbook);
-			var resourceDescriptions = getResourceDescription(workbook);
-			getComputationPositionContractPrice();
-
-			GetComputationInfoFromExcelFile getDataFromExcelFile = new GetComputationInfoFromExcelFile();
-			getDataFromExcelFile
-					.writeComputationPositionsToTextFile(computationPositions);
-			getDataFromExcelFile
-					.writeResourceDescriptionsToTextFile(resourceDescriptions);
-
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static List<Computation> getComputations(Workbook workbook) {
+	private List<Computation> getComputations(Workbook workbook) {
 
 		Sheet sheet = workbook.getSheet(generalDataOfComputationSheetName);
 
@@ -83,8 +65,7 @@ public class GetComputationInfoFromExcelFile {
 		return computations;
 	}
 
-	private static List<ComputationPosition> getComputationPosition(
-			Workbook workbook) {
+	public List<ComputationPosition> getComputationPosition(Workbook workbook) {
 		Sheet sheet = workbook.getSheet(computationPositionSheetName);
 		int lastRowNum = sheet.getLastRowNum();
 		List<ComputationPosition> computationPositions = new ArrayList<>();
@@ -169,8 +150,7 @@ public class GetComputationInfoFromExcelFile {
 		return computationPositions;
 	}
 
-	private static List<ResourceDescription> getResourceDescription(
-			Workbook workbook) {
+	public List<ResourceDescription> getResourceDescription(Workbook workbook) {
 
 		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
 		int lastRowNum = sheet.getLastRowNum();
@@ -259,7 +239,7 @@ public class GetComputationInfoFromExcelFile {
 		return resourceDescriptions;
 	}
 
-	private static List<ComputationPositionUnitOfMeasurement> getComputationPositionUnitOfMeasurements(
+	private List<ComputationPositionUnitOfMeasurement> getComputationPositionUnitOfMeasurements(
 			Workbook workbook) {
 
 		Sheet sheet = workbook.getSheet(computationPositionSheetName);
@@ -280,7 +260,7 @@ public class GetComputationInfoFromExcelFile {
 
 	}
 
-	private static List<ResourceDescriptionUnitOfMeasurement> getResourceDescriptionUnitOfMeasurements(
+	private List<ResourceDescriptionUnitOfMeasurement> getResourceDescriptionUnitOfMeasurements(
 			Workbook workbook) {
 
 		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
@@ -301,7 +281,7 @@ public class GetComputationInfoFromExcelFile {
 
 	}
 
-	private static ComputationTypePosition getComputationTypePositionByName(
+	private ComputationTypePosition getComputationTypePositionByName(
 			String computationTypePositionName) {
 		for (ComputationTypePosition name : ComputationTypePosition.values()) {
 			if (name.getComputationTypeName()
@@ -312,7 +292,7 @@ public class GetComputationInfoFromExcelFile {
 		return null;
 	}
 
-	private static MarkOfResourceDescrition getMarkOfResourceDescritionByName(
+	private MarkOfResourceDescrition getMarkOfResourceDescritionByName(
 			String markOfResourceDescritionName) {
 		for (MarkOfResourceDescrition name : MarkOfResourceDescrition
 				.values()) {
@@ -323,7 +303,7 @@ public class GetComputationInfoFromExcelFile {
 		return null;
 	}
 
-	private static Map<Integer, Double> getComputationPositionContractPrice() {
+	public Map<Integer, Double> getComputationPositionContractPrice() {
 
 		Map<Integer, Double> computationPositionContractPriceMap = new HashMap<>();
 
@@ -360,7 +340,7 @@ public class GetComputationInfoFromExcelFile {
 		return computationPositionContractPriceMap;
 	}
 
-	private void writeComputationPositionsToTextFile(
+	public void writeComputationPositionsToTextFile(
 			List<ComputationPosition> computationPositions) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH_mm_ss");
@@ -388,7 +368,7 @@ public class GetComputationInfoFromExcelFile {
 		}
 	}
 
-	private void writeResourceDescriptionsToTextFile(
+	public void writeResourceDescriptionsToTextFile(
 			List<ResourceDescription> resourceDescriptions) {
 
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy_HH_mm_ss");
