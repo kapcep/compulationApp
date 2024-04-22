@@ -3,6 +3,7 @@ package com.computation.estimate.service;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -46,6 +47,8 @@ public class OperationalInfoExcelFileCreator {
 				.setVerticalAlignment(VerticalAlignment.CENTER);
 		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
 				.setWrapText(true);
+		setBordersToCell(
+				centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont);
 
 		Font fontBold = workbook.createFont();
 		fontBold.setBold(true);
@@ -57,6 +60,7 @@ public class OperationalInfoExcelFileCreator {
 		// fontWith10heightStyle
 
 		CellStyle fontWith10HeightStyle = workbook.createCellStyle();
+		setBordersToCell(fontWith10HeightStyle);
 		fontWith10HeightStyle.setAlignment(HorizontalAlignment.CENTER);
 		fontWith10HeightStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		Font fontWith10height = workbook.createFont();
@@ -92,13 +96,24 @@ public class OperationalInfoExcelFileCreator {
 		cell13.setCellStyle(fontWith10HeightStyle);
 		cell13.setCellValue("Загальний обсяг робіт ДЦ");
 
+		Cell cell14 = row1.createCell(4);
+		cell14.setCellStyle(fontWith10HeightStyle);
+		Cell cell15 = row1.createCell(5);
+		cell15.setCellStyle(fontWith10HeightStyle);
+
 		Cell cell16 = row1.createCell(6);
 		cell16.setCellStyle(fontWith10HeightStyle);
 		cell16.setCellValue("Виконано");
 
+		Cell cell17 = row1.createCell(7);
+		cell17.setCellStyle(fontWith10HeightStyle);
+
 		Cell cell18 = row1.createCell(8);
 		cell18.setCellStyle(fontWith10HeightStyle);
 		cell18.setCellValue("Залишок");
+
+		Cell cell19 = row1.createCell(9);
+		cell19.setCellStyle(fontWith10HeightStyle);
 
 		// set width of columns
 		sheet.setColumnWidth(0, 4 * 300);
@@ -126,5 +141,18 @@ public class OperationalInfoExcelFileCreator {
 			cell.setCellStyle(fontWith10HeightStyle);
 			cell.setCellValue(i);
 		}
+
+	}
+
+	private void setBordersToCell(
+			CellStyle centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont) {
+		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
+				.setBorderBottom(BorderStyle.THIN);
+		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
+				.setBorderLeft(BorderStyle.THIN);
+		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
+				.setBorderRight(BorderStyle.THIN);
+		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
+				.setBorderTop(BorderStyle.THIN);
 	}
 }
