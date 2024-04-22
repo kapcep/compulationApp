@@ -13,16 +13,22 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class OperationalInfoExcelFileCreator {
 	public static void main(String[] args) {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
 		try (Workbook workbook = new XSSFWorkbook()) {
-			Sheet sheet = workbook.createSheet("відомість обємів робіт");
+			XSSFSheet registerSheet = (XSSFSheet) workbook
+					.createSheet("Реєстр");
+			Sheet operationalInfoSheet = workbook
+					.createSheet("відомість обємів робіт");
 
-			operationalInfoExcelFileCreator.createHeaderToTable(sheet,
+			operationalInfoExcelFileCreator.createRegisterTable(registerSheet,
 					workbook);
+			operationalInfoExcelFileCreator
+					.createHeaderToTable(operationalInfoSheet, workbook);
 
 			try (FileOutputStream outputStream = new FileOutputStream(
 					"files/operational_info_file.xlsx")) {
@@ -33,6 +39,11 @@ public class OperationalInfoExcelFileCreator {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void createRegisterTable(XSSFSheet registerSheet,
+			Workbook workbook) {
+
 	}
 
 	private void createHeaderToTable(Sheet sheet, Workbook workbook) {
