@@ -1,11 +1,16 @@
 package com.computation.estimate.service;
 
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -14,6 +19,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.ss.util.AreaReference;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
@@ -22,28 +28,148 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import com.computation.estimate.entity.ComputationPosition;
+
 public class OperationalInfoExcelFileCreator {
+	final static String outboxExcelFilePath = "files/451_du.xlsx";
+
 	public static void main(String[] args) {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
-		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
-			XSSFSheet registerSheet = (XSSFSheet) workbook
+		GetComputationInfoFromExcelFile computationInfoFromExcelFile = new GetComputationInfoFromExcelFile();
+		try (XSSFWorkbook operationalInfoWorkbook = new XSSFWorkbook()) {
+			XSSFSheet registerSheet = (XSSFSheet) operationalInfoWorkbook
 					.createSheet("Реєстр");
-			Sheet operationalInfoSheet = workbook
+			Sheet operationalInfoSheet = operationalInfoWorkbook
 					.createSheet("відомість обємів робіт");
 
 			operationalInfoExcelFileCreator.createRegisterTable(registerSheet,
-					workbook);
+					operationalInfoWorkbook);
+			operationalInfoExcelFileCreator.createHeaderToTable(
+					operationalInfoSheet, operationalInfoWorkbook);
+
+			// get computationPositions
+			Workbook outboxExcelWorkbook = operationalInfoExcelFileCreator
+					.getOutboxExcelWorkbook(outboxExcelFilePath);
+			List<ComputationPosition> computationPositions = computationInfoFromExcelFile
+					.getComputationPosition(outboxExcelWorkbook);
+
 			operationalInfoExcelFileCreator
-					.createHeaderToTable(operationalInfoSheet, workbook);
+					.writeComputitionPositionsToOperationalInfoSheet(
+							operationalInfoSheet, computationPositions,
+							operationalInfoWorkbook);
 
 			try (FileOutputStream outputStream = new FileOutputStream(
 					"files/operational_info_file.xlsx")) {
-				workbook.write(outputStream);
+				operationalInfoWorkbook.write(outputStream);
 			}
 
 			System.out.println("Excel файл створено успішно!");
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void writeComputitionPositionsToOperationalInfoSheet(
+			Sheet operationalInfoSheet,
+			List<ComputationPosition> computationPositions, Workbook workbook) {
+
+		CellStyle computationPositionNameStyle = getFontWith10HeightStyle(
+				workbook);
+		computationPositionNameStyle.setAlignment(HorizontalAlignment.LEFT);
+		computationPositionNameStyle.setWrapText(true);
+
+		CellStyle centeredStyle = getFontWith10HeightStyle(workbook);
+
+		int count = 3;
+		for (int i = 0; i < computationPositions.size(); i++) {
+			Row row = operationalInfoSheet.createRow(count++);
+
+			// set numbering
+			Cell cell0 = row.createCell(0);
+			cell0.setCellValue(
+					computationPositions.get(i).getComputationPositionId());
+			cell0.setCellStyle(centeredStyle);
+
+			// set computationPositionName
+			Cell cell1 = row.createCell(1);
+			cell1.setCellValue(
+					computationPositions.get(i).getComputationPositionName());
+			cell1.setCellStyle(computationPositionNameStyle);
+
+			// set computationPositionUnitOfMeasurement
+			Cell cell2 = row.createCell(2);
+			cell2.setCellValue(computationPositions.get(i)
+					.getComputationPositionUnitOfMeasurement()
+					.getComputationPositionUnitOfMeasurementName());
+			cell2.setCellStyle(centeredStyle);
+
+			// set amount
+			Cell cell3 = row.createCell(3);
+			cell3.setCellValue(computationPositions.get(i).getAmount());
+			cell3.setCellStyle(centeredStyle);
+
+			// set amount unit cost
+			Cell cell4 = row.createCell(4);
+			cell4.setCellFormula("F" + count + "/" + "D" + count);
+			cell4.setCellStyle(centeredStyle);
+
+			// set computationPositionContractPrice
+			Cell cell5 = row.createCell(5);
+			cell5.setCellValue(computationPositions.get(i)
+					.getComputationPositionContractPrice());
+			cell5.setCellStyle(centeredStyle);
+
+			// set the sum of the number of works per period
+			Cell cell6 = row.createCell(6);
+			cell6.setCellFormula("SUM(K" + count + ":" + "M" + count + ")");
+			cell6.setCellStyle(centeredStyle);
+
+			// the cost of the work performed
+			Cell cell7 = row.createCell(7);
+			cell7.setCellFormula("E" + count + "*" + "G" + count);
+			cell7.setCellStyle(centeredStyle);
+
+			// the remainder of the completed works
+			Cell cell8 = row.createCell(8);
+			cell8.setCellFormula("D" + count + "-" + "G" + count);
+			cell8.setCellStyle(centeredStyle);
+			
+			// the price of the remaining work performed
+			Cell cell9 = row.createCell(9);
+			cell9.setCellFormula("I" + count + "*" + "E" + count);
+			cell9.setCellStyle(centeredStyle);
+			
+			// blank cells
+			Cell cell10 = row.createCell(10);
+			cell10.setCellStyle(centeredStyle);
+			Cell cell11 = row.createCell(11);
+			cell11.setCellStyle(centeredStyle);
+			Cell cell12 = row.createCell(12);
+			cell12.setCellStyle(centeredStyle);
+		}
+
+	}
+
+	private Workbook getOutboxExcelWorkbook(String outboxExcelFilePath) {
+
+		try (Workbook workbook = WorkbookFactory
+				.create(new FileInputStream(outboxExcelFilePath))) {
+
+			GetComputationInfoFromExcelFile getDataFromExcelFile = new GetComputationInfoFromExcelFile();
+
+			var computationPositions = getDataFromExcelFile
+					.getComputationPosition(workbook);
+			var resourceDescriptions = getDataFromExcelFile
+					.getResourceDescription(workbook);
+			getDataFromExcelFile.getComputationPositionContractPrice();
+
+			getDataFromExcelFile
+					.writeComputationPositionsToTextFile(computationPositions);
+			getDataFromExcelFile
+					.writeResourceDescriptionsToTextFile(resourceDescriptions);
+			return workbook;
+		} catch (IOException e) {
+			return null;
 		}
 	}
 
@@ -111,7 +237,6 @@ public class OperationalInfoExcelFileCreator {
 
 		for (int i = 0; i <= 10; i++) {
 			final XSSFCell cell = row1.createCell(i);
-			cell.setCellValue(i);
 
 			if (i == 0 || i == 2 || i == 7 || i == 8) {
 				cell.setCellStyle(registerRowCenteredStyle);
@@ -159,48 +284,79 @@ public class OperationalInfoExcelFileCreator {
 		Row row0 = sheet.createRow(0);
 		row0.setHeight((short) 900);
 		Cell cell00 = row0.createCell(0);
-		cell00.setCellValue(
-				"НАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА НАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТАНАЗВА ОБЄКТА");
+		cell00.setCellValue("НАЗВА ОБЄКТА");
 		cell00.setCellStyle(
 				centerAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle);
 
 		// row two
 		Row row1 = sheet.createRow(1);
 
-		Cell cell10 = row1.createCell(0);
-		cell10.setCellStyle(fontWith10HeightStyle);
-		cell10.setCellValue("№ пп");
+		Cell cell_1_0 = row1.createCell(0);
+		cell_1_0.setCellStyle(fontWith10HeightStyle);
+		cell_1_0.setCellValue("№ пп");
 
-		Cell cell11 = row1.createCell(1);
-		cell11.setCellStyle(fontWith10HeightStyle);
-		cell11.setCellValue("Найменування робiт і витрат");
+		Cell cell_1_1 = row1.createCell(1);
+		cell_1_1.setCellStyle(fontWith10HeightStyle);
+		cell_1_1.setCellValue("Найменування робiт і витрат");
 
-		Cell cell12 = row1.createCell(2);
-		cell12.setCellStyle(fontWith10HeightStyle);
-		cell12.setCellValue("Вимірник");
+		Cell cell_1_2 = row1.createCell(2);
+		cell_1_2.setCellStyle(fontWith10HeightStyle);
+		cell_1_2.setCellValue("Вимірник");
 
-		Cell cell13 = row1.createCell(3);
-		cell13.setCellStyle(fontWith10HeightStyle);
-		cell13.setCellValue("Загальний обсяг робіт ДЦ");
+		Cell cell_1_3 = row1.createCell(3);
+		cell_1_3.setCellStyle(fontWith10HeightStyle);
+		cell_1_3.setCellValue("Загальний обсяг робіт ДЦ");
 
-		Cell cell14 = row1.createCell(4);
-		cell14.setCellStyle(fontWith10HeightStyle);
-		Cell cell15 = row1.createCell(5);
-		cell15.setCellStyle(fontWith10HeightStyle);
+		Cell cell_1_4 = row1.createCell(4);
+		cell_1_4.setCellStyle(fontWith10HeightStyle);
+		Cell cell_1_5 = row1.createCell(5);
+		cell_1_5.setCellStyle(fontWith10HeightStyle);
 
-		Cell cell16 = row1.createCell(6);
-		cell16.setCellStyle(fontWith10HeightStyle);
-		cell16.setCellValue("Виконано");
+		Cell cell_1_6 = row1.createCell(6);
+		cell_1_6.setCellStyle(fontWith10HeightStyle);
+		cell_1_6.setCellValue("Виконано");
 
-		Cell cell17 = row1.createCell(7);
-		cell17.setCellStyle(fontWith10HeightStyle);
+		Cell cell_1_7 = row1.createCell(7);
+		cell_1_7.setCellStyle(fontWith10HeightStyle);
 
-		Cell cell18 = row1.createCell(8);
-		cell18.setCellStyle(fontWith10HeightStyle);
-		cell18.setCellValue("Залишок");
+		Cell cell_1_8 = row1.createCell(8);
+		cell_1_8.setCellStyle(fontWith10HeightStyle);
+		cell_1_8.setCellValue("Залишок");
 
-		Cell cell19 = row1.createCell(9);
-		cell19.setCellStyle(fontWith10HeightStyle);
+		Cell cell_1_9 = row1.createCell(9);
+		cell_1_9.setCellStyle(fontWith10HeightStyle);
+
+		Cell cell_1_10 = row1.createCell(10);
+		cell_1_10.setCellValue(new Date());
+		CellStyle dateFormatStyle = getDateFormatStyle(workbook);
+		cell_1_10.setCellStyle(dateFormatStyle);
+
+		Cell cell_1_11 = row1.createCell(11);
+		Calendar calendarPlusOneDay = Calendar.getInstance();
+		calendarPlusOneDay.setTime(new Date());
+		calendarPlusOneDay.add(Calendar.DAY_OF_MONTH, 1);
+		cell_1_11.setCellValue(calendarPlusOneDay.getTime());
+		cell_1_11.setCellStyle(dateFormatStyle);
+
+		Cell cell_1_12 = row1.createCell(12);
+		Calendar calendarPlusTwoDays = Calendar.getInstance();
+		calendarPlusTwoDays.setTime(new Date());
+		calendarPlusTwoDays.add(Calendar.DAY_OF_MONTH, 2);
+		cell_1_12.setCellValue(calendarPlusTwoDays.getTime());
+		cell_1_12.setCellStyle(dateFormatStyle);
+
+		// row 3
+		Row row2 = sheet.createRow(2);
+		Cell cell_2_11 = row2.createCell(10);
+		cell_2_11.setCellStyle(fontWith10HeightStyle);
+		cell_2_11.setCellStyle(dateFormatStyle);
+
+		// add horizontal numbering
+		for (int i = 1; i <= 10; i++) {
+			Cell cell = row2.createCell(i - 1);
+			cell.setCellStyle(fontWith10HeightStyle);
+			cell.setCellValue(i);
+		}
 
 		// set width of columns
 		sheet.setColumnWidth(0, 4 * 300);
@@ -210,25 +366,37 @@ public class OperationalInfoExcelFileCreator {
 		sheet.setColumnWidth(4, 100 * 30);
 		sheet.setColumnWidth(5, 160 * 30);
 		sheet.setColumnWidth(6, 100 * 30);
-		sheet.setColumnWidth(7, 160 * 30);
+		sheet.setColumnWidth(7, 100 * 30);
 		sheet.setColumnWidth(8, 100 * 30);
+		sheet.setColumnWidth(9, 160 * 30);
 
 		// union cells
 		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 3, 5));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 6, 7));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 8, 9));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 10, 10));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 11, 11));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 12, 12));
 
-		// row 3
-		Row row2 = sheet.createRow(2);
+	}
 
-		// add horizontal numbering
-		for (int i = 1; i <= 10; i++) {
-			Cell cell = row2.createCell(i - 1);
-			cell.setCellStyle(fontWith10HeightStyle);
-			cell.setCellValue(i);
-		}
+	private CellStyle getDateFormatStyle(Workbook workbook) {
+		CellStyle dateFormatStyle = workbook.createCellStyle();
+		DataFormat format = workbook.createDataFormat();
+		dateFormatStyle.setDataFormat(format.getFormat("dd.mm"));
+		dateFormatStyle.setBorderBottom(BorderStyle.THIN);
+		dateFormatStyle.setBorderTop(BorderStyle.THIN);
+		dateFormatStyle.setBorderLeft(BorderStyle.THIN);
+		dateFormatStyle.setBorderRight(BorderStyle.THIN);
+		dateFormatStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+		dateFormatStyle.setAlignment(HorizontalAlignment.CENTER);
 
+		Font font = getFontWith10height(workbook);
+		font.setBold(true);
+		dateFormatStyle.setFont(font);
+
+		return dateFormatStyle;
 	}
 
 	private CellStyle getFontWith10HeightStyle(Workbook workbook) {
@@ -237,11 +405,17 @@ public class OperationalInfoExcelFileCreator {
 		fontWith10HeightStyle = returnStyleWithHorizontalAndVerticalAlignment(
 				fontWith10HeightStyle);
 
-		Font fontWith10height = workbook.createFont();
-		fontWith10height.setFontHeightInPoints((short) 10);
+		var fontWith10height = getFontWith10height(workbook);
 		fontWith10HeightStyle.setFont(fontWith10height);
 
 		return fontWith10HeightStyle;
+	}
+
+	private Font getFontWith10height(Workbook workbook) {
+		Font fontWith10height = workbook.createFont();
+		fontWith10height.setFontHeightInPoints((short) 10);
+
+		return fontWith10height;
 	}
 
 	private CellStyle getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
