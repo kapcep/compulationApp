@@ -83,16 +83,33 @@ public class OperationalInfoExcelFileCreator {
 
 		CellStyle centeredStyle = getFontWith10HeightStyle(workbook);
 
+		int countNumberingOfComputationPositions = 1;
+		String computationNumberAndName = "";
+		String sectionName = "";
+		String subSectionName = "";
+
 		int count = 4;
 		for (int i = 0; i < computationPositions.size(); i++) {
+
+			final String computationTypeName = computationPositions.get(i)
+					.getComputationTypePosition().getComputationTypeName();
+
+			if (computationTypeName == "H") {
+				continue;
+			}
+
 			Row row = operationalInfoSheet.createRow(count++);
 
+			if (computationTypeName == "R" || computationTypeName == "Y") {
+				Cell cell0 = row.createCell(0);
+				cell0.setCellStyle(centeredStyle);
+			}
 			// set numbering
-			Cell cell0 = row.createCell(0);
-			cell0.setCellValue(
-					computationPositions.get(i).getComputationPositionId());
-			cell0.setCellStyle(centeredStyle);
-
+			if (computationTypeName == " Поз. Л.С. ") {
+				Cell cell0 = row.createCell(0);
+				cell0.setCellValue(countNumberingOfComputationPositions++);
+				cell0.setCellStyle(centeredStyle);
+			}
 			// set computationPositionName
 			Cell cell1 = row.createCell(1);
 			cell1.setCellValue(
