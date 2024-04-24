@@ -133,12 +133,12 @@ public class OperationalInfoExcelFileCreator {
 			Cell cell8 = row.createCell(8);
 			cell8.setCellFormula("D" + count + "-" + "G" + count);
 			cell8.setCellStyle(centeredStyle);
-			
+
 			// the price of the remaining work performed
 			Cell cell9 = row.createCell(9);
 			cell9.setCellFormula("I" + count + "*" + "E" + count);
 			cell9.setCellStyle(centeredStyle);
-			
+
 			// blank cells
 			Cell cell10 = row.createCell(10);
 			cell10.setCellStyle(centeredStyle);
@@ -155,19 +155,8 @@ public class OperationalInfoExcelFileCreator {
 		try (Workbook workbook = WorkbookFactory
 				.create(new FileInputStream(outboxExcelFilePath))) {
 
-			GetComputationInfoFromExcelFile getDataFromExcelFile = new GetComputationInfoFromExcelFile();
-
-			var computationPositions = getDataFromExcelFile
-					.getComputationPosition(workbook);
-			var resourceDescriptions = getDataFromExcelFile
-					.getResourceDescription(workbook);
-			getDataFromExcelFile.getComputationPositionContractPrice();
-
-			getDataFromExcelFile
-					.writeComputationPositionsToTextFile(computationPositions);
-			getDataFromExcelFile
-					.writeResourceDescriptionsToTextFile(resourceDescriptions);
 			return workbook;
+
 		} catch (IOException e) {
 			return null;
 		}
