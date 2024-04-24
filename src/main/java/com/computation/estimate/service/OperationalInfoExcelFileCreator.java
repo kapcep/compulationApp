@@ -42,9 +42,12 @@ public class OperationalInfoExcelFileCreator {
 			Sheet operationalInfoSheet = operationalInfoWorkbook
 					.createSheet("відомість обємів робіт");
 
+			// freeze 4 row
+			operationalInfoSheet.createFreezePane(2, 4);
+
 			operationalInfoExcelFileCreator.createRegisterTable(registerSheet,
 					operationalInfoWorkbook);
-			operationalInfoExcelFileCreator.createHeaderToTable(
+			operationalInfoExcelFileCreator.createOperationalInfoHeaderToTable(
 					operationalInfoSheet, operationalInfoWorkbook);
 
 			// get computationPositions
@@ -80,7 +83,7 @@ public class OperationalInfoExcelFileCreator {
 
 		CellStyle centeredStyle = getFontWith10HeightStyle(workbook);
 
-		int count = 3;
+		int count = 4;
 		for (int i = 0; i < computationPositions.size(); i++) {
 			Row row = operationalInfoSheet.createRow(count++);
 
@@ -247,7 +250,7 @@ public class OperationalInfoExcelFileCreator {
 		sheet.setColumnWidth(2, 80 * 30);
 		sheet.setColumnWidth(3, 154 * 30);
 		sheet.setColumnWidth(4, 188 * 30);
-		sheet.setColumnWidth(5, 100 * 30);
+		sheet.setColumnWidth(5, 120 * 30);
 		sheet.setColumnWidth(6, 188 * 30);
 		sheet.setColumnWidth(7, 87 * 30);
 		sheet.setColumnWidth(8, 105 * 30);
@@ -256,16 +259,25 @@ public class OperationalInfoExcelFileCreator {
 
 	}
 
-	private void createHeaderToTable(Sheet sheet, Workbook workbook) {
+	private void createOperationalInfoHeaderToTable(Sheet sheet,
+			Workbook workbook) {
 
 		// centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
-
 		CellStyle centerAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle = getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
 				workbook);
 
 		// fontWith10heightStyle
-
 		CellStyle fontWith10HeightStyle = getFontWith10HeightStyle(workbook);
+
+		// modifiedFontWith10Height
+		CellStyle modifiedFontWith10HeightBoldWrapTextStyle = workbook
+				.createCellStyle();
+		modifiedFontWith10HeightBoldWrapTextStyle
+				.cloneStyleFrom(fontWith10HeightStyle);
+		Font font = getFontWith10height(workbook);
+		font.setBold(true);
+		modifiedFontWith10HeightBoldWrapTextStyle.setFont(font);
+		modifiedFontWith10HeightBoldWrapTextStyle.setWrapText(true);
 
 		// add cells to sheet
 
@@ -281,19 +293,19 @@ public class OperationalInfoExcelFileCreator {
 		Row row1 = sheet.createRow(1);
 
 		Cell cell_1_0 = row1.createCell(0);
-		cell_1_0.setCellStyle(fontWith10HeightStyle);
+		cell_1_0.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_0.setCellValue("№ пп");
 
 		Cell cell_1_1 = row1.createCell(1);
-		cell_1_1.setCellStyle(fontWith10HeightStyle);
+		cell_1_1.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_1.setCellValue("Найменування робiт і витрат");
 
 		Cell cell_1_2 = row1.createCell(2);
-		cell_1_2.setCellStyle(fontWith10HeightStyle);
+		cell_1_2.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_2.setCellValue("Вимірник");
 
 		Cell cell_1_3 = row1.createCell(3);
-		cell_1_3.setCellStyle(fontWith10HeightStyle);
+		cell_1_3.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_3.setCellValue("Загальний обсяг робіт ДЦ");
 
 		Cell cell_1_4 = row1.createCell(4);
@@ -302,49 +314,82 @@ public class OperationalInfoExcelFileCreator {
 		cell_1_5.setCellStyle(fontWith10HeightStyle);
 
 		Cell cell_1_6 = row1.createCell(6);
-		cell_1_6.setCellStyle(fontWith10HeightStyle);
+		cell_1_6.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_6.setCellValue("Виконано");
 
 		Cell cell_1_7 = row1.createCell(7);
 		cell_1_7.setCellStyle(fontWith10HeightStyle);
 
 		Cell cell_1_8 = row1.createCell(8);
-		cell_1_8.setCellStyle(fontWith10HeightStyle);
+		cell_1_8.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
 		cell_1_8.setCellValue("Залишок");
 
 		Cell cell_1_9 = row1.createCell(9);
 		cell_1_9.setCellStyle(fontWith10HeightStyle);
 
 		Cell cell_1_10 = row1.createCell(10);
-		cell_1_10.setCellValue(new Date());
+		Calendar calendarCurrentDate = plusDaysToCurrentDate(0);
+		cell_1_10.setCellValue(calendarCurrentDate.getTime());
 		CellStyle dateFormatStyle = getDateFormatStyle(workbook);
 		cell_1_10.setCellStyle(dateFormatStyle);
 
 		Cell cell_1_11 = row1.createCell(11);
-		Calendar calendarPlusOneDay = Calendar.getInstance();
-		calendarPlusOneDay.setTime(new Date());
-		calendarPlusOneDay.add(Calendar.DAY_OF_MONTH, 1);
+		Calendar calendarPlusOneDay = plusDaysToCurrentDate(1);
 		cell_1_11.setCellValue(calendarPlusOneDay.getTime());
 		cell_1_11.setCellStyle(dateFormatStyle);
 
 		Cell cell_1_12 = row1.createCell(12);
-		Calendar calendarPlusTwoDays = Calendar.getInstance();
-		calendarPlusTwoDays.setTime(new Date());
-		calendarPlusTwoDays.add(Calendar.DAY_OF_MONTH, 2);
+		Calendar calendarPlusTwoDays = plusDaysToCurrentDate(2);
 		cell_1_12.setCellValue(calendarPlusTwoDays.getTime());
 		cell_1_12.setCellStyle(dateFormatStyle);
 
 		// row 3
 		Row row2 = sheet.createRow(2);
-		Cell cell_2_11 = row2.createCell(10);
-		cell_2_11.setCellStyle(fontWith10HeightStyle);
+		Cell cell_2_10 = row2.createCell(10);
+		cell_2_10.setCellStyle(dateFormatStyle);
+
+		Cell cell_2_11 = row2.createCell(11);
 		cell_2_11.setCellStyle(dateFormatStyle);
 
-		// add horizontal numbering
+		Cell cell_2_12 = row2.createCell(12);
+		cell_2_12.setCellStyle(dateFormatStyle);
+
+		// add cells to row 3
+
 		for (int i = 1; i <= 10; i++) {
 			Cell cell = row2.createCell(i - 1);
-			cell.setCellStyle(fontWith10HeightStyle);
-			cell.setCellValue(i);
+			cell.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
+			if (i == 4) {
+				cell.setCellValue("Обсяг");
+			} else if (i == 5) {
+				cell.setCellValue("Вартість одиниці");
+			} else if (i == 6) {
+				cell.setCellValue("Вартість робіт з ПДВ");
+			} else if (i == 7) {
+				cell.setCellValue("Обсяг");
+			} else if (i == 8) {
+				cell.setCellValue("Вартість робіт з ПДВ");
+			} else if (i == 9) {
+				cell.setCellValue("Обсяг");
+			} else if (i == 10) {
+				cell.setCellValue("Залишкова вартість робіт з ПДВ");
+			}
+
+		}
+
+		// row 4
+		Row row3 = sheet.createRow(3);
+
+		// add horizontal numbering
+		for (int i = 1; i <= 13; i++) {
+			if (i <= 10) {
+				Cell cell = row3.createCell(i - 1);
+				cell.setCellStyle(modifiedFontWith10HeightBoldWrapTextStyle);
+				cell.setCellValue(i);
+			} else {
+				Cell cell = row3.createCell(i - 1);
+				cell.setCellStyle(fontWith10HeightStyle);
+			}
 		}
 
 		// set width of columns
@@ -361,19 +406,33 @@ public class OperationalInfoExcelFileCreator {
 
 		// union cells
 		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 9));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 0, 0));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 1, 1));
+		sheet.addMergedRegion(new CellRangeAddress(1, 2, 2, 2));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 3, 5));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 6, 7));
 		sheet.addMergedRegion(new CellRangeAddress(1, 1, 8, 9));
-		sheet.addMergedRegion(new CellRangeAddress(1, 2, 10, 10));
-		sheet.addMergedRegion(new CellRangeAddress(1, 2, 11, 11));
-		sheet.addMergedRegion(new CellRangeAddress(1, 2, 12, 12));
+		sheet.addMergedRegion(new CellRangeAddress(1, 3, 10, 10));
+		sheet.addMergedRegion(new CellRangeAddress(1, 3, 11, 11));
+		sheet.addMergedRegion(new CellRangeAddress(1, 3, 12, 12));
 
+	}
+
+	private Calendar plusDaysToCurrentDate(int days) {
+		Calendar calendarPlusOneDay = Calendar.getInstance();
+		calendarPlusOneDay.setTime(new Date());
+		calendarPlusOneDay.add(Calendar.DAY_OF_MONTH, days);
+		calendarPlusOneDay.set(Calendar.HOUR_OF_DAY, 0);
+		calendarPlusOneDay.set(Calendar.MINUTE, 0);
+		calendarPlusOneDay.set(Calendar.SECOND, 0);
+		calendarPlusOneDay.set(Calendar.MILLISECOND, 0);
+		return calendarPlusOneDay;
 	}
 
 	private CellStyle getDateFormatStyle(Workbook workbook) {
 		CellStyle dateFormatStyle = workbook.createCellStyle();
 		DataFormat format = workbook.createDataFormat();
-		dateFormatStyle.setDataFormat(format.getFormat("dd.mm"));
+		dateFormatStyle.setDataFormat(format.getFormat("dd.MM"));
 		dateFormatStyle.setBorderBottom(BorderStyle.THIN);
 		dateFormatStyle.setBorderTop(BorderStyle.THIN);
 		dateFormatStyle.setBorderLeft(BorderStyle.THIN);
@@ -403,6 +462,7 @@ public class OperationalInfoExcelFileCreator {
 	private Font getFontWith10height(Workbook workbook) {
 		Font fontWith10height = workbook.createFont();
 		fontWith10height.setFontHeightInPoints((short) 10);
+		fontWith10height.setFontName("Arial");
 
 		return fontWith10height;
 	}
@@ -421,6 +481,7 @@ public class OperationalInfoExcelFileCreator {
 		Font fontBold = workbook.createFont();
 		fontBold.setBold(true);
 		fontBold.setFontHeightInPoints((short) 12);
+		fontBold.setFontName("Arial");
 		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle
 				.setFont(fontBold);
 
