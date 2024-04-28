@@ -91,41 +91,58 @@ public class OperationalInfoExcelFileCreator {
 		int count = 4;
 		for (int i = 0; i < computationPositions.size(); i++) {
 
-			final String computationTypeName = computationPositions.get(i)
+			final ComputationPosition computationPosition = computationPositions
+					.get(i);
+			final String computationTypeName = computationPosition
 					.getComputationTypePosition().getComputationTypeName();
+			final String computationPositionName = computationPosition
+					.getComputationPositionName();
 
 			if (computationTypeName == "H") {
 				continue;
 			}
 
+			if (computationTypeName == "R") {
+				Row row = operationalInfoSheet.createRow(count++);
+				Cell cell = row.createCell(1);
+				cell.setCellValue(computationPositionName);
+				continue;
+			}
+
+			if (computationTypeName == "Y") {
+				Row row = operationalInfoSheet.createRow(count++);
+				Cell cell = row.createCell(1);
+				cell.setCellValue(computationPositionName);
+				continue;
+			}
+
 			Row row = operationalInfoSheet.createRow(count++);
 
-			if (computationTypeName == "R" || computationTypeName == "Y") {
-				Cell cell0 = row.createCell(0);
-				cell0.setCellStyle(centeredStyle);
-			}
 			// set numbering
 			if (computationTypeName == " Поз. Л.С. ") {
 				Cell cell0 = row.createCell(0);
 				cell0.setCellValue(countNumberingOfComputationPositions++);
 				cell0.setCellStyle(centeredStyle);
+			} else {
+				continue;
 			}
+
 			// set computationPositionName
 			Cell cell1 = row.createCell(1);
 			cell1.setCellValue(
-					computationPositions.get(i).getComputationPositionName());
+					computationPosition.getComputationPositionName());
 			cell1.setCellStyle(computationPositionNameStyle);
 
 			// set computationPositionUnitOfMeasurement
 			Cell cell2 = row.createCell(2);
-			cell2.setCellValue(computationPositions.get(i)
+			cell2.setCellValue(computationPosition
 					.getComputationPositionUnitOfMeasurement()
 					.getComputationPositionUnitOfMeasurementName());
 			cell2.setCellStyle(centeredStyle);
 
 			// set amount
 			Cell cell3 = row.createCell(3);
-			cell3.setCellValue(computationPositions.get(i).getAmount());
+			cell3.setCellValue(computationPosition.getAmount());
 			cell3.setCellStyle(centeredStyle);
 
 			// set amount unit cost
@@ -135,8 +152,8 @@ public class OperationalInfoExcelFileCreator {
 
 			// set computationPositionContractPrice
 			Cell cell5 = row.createCell(5);
-			cell5.setCellValue(computationPositions.get(i)
-					.getComputationPositionContractPrice());
+			cell5.setCellValue(
+					computationPosition.getComputationPositionContractPrice());
 			cell5.setCellStyle(centeredStyle);
 
 			// set the sum of the number of works per period
