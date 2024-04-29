@@ -84,39 +84,49 @@ public class OperationalInfoExcelFileCreator {
 		CellStyle centeredStyle = getFontWith10HeightStyle(workbook);
 
 		int countNumberingOfComputationPositions = 1;
-		String computationNumberAndName = "";
+		String computationNumberAndNameTemp = "";
 		String sectionName = "";
 		String subSectionName = "";
 
-		int count = 4;
+		int rowCount = 4;
 		for (int i = 0; i < computationPositions.size(); i++) {
 
 			final ComputationPosition computationPosition = computationPositions
 					.get(i);
 			final String computationTypeName = computationPosition
 					.getComputationTypePosition().getComputationTypeName();
-			final String computationPositionName = computationPosition
+			String computationPositionName = computationPosition
 					.getComputationPositionName();
+			String computationNumberAndName = computationPosition
+					.getComputation().getComputationNumber() + " "
+					+ computationPosition.getComputation().getComputationName();
 
 			if (computationTypeName == "H") {
 				continue;
 			}
 
+			if (computationNumberAndNameTemp != computationNumberAndName) {
+				Row row = operationalInfoSheet.createRow(rowCount++);
+				Cell cell = row.createCell(1);
+				cell.setCellValue(computationNumberAndName);
+				computationNumberAndNameTemp = computationNumberAndName;
+			}
+
 			if (computationTypeName == "R") {
-				Row row = operationalInfoSheet.createRow(count++);
+				Row row = operationalInfoSheet.createRow(rowCount++);
 				Cell cell = row.createCell(1);
 				cell.setCellValue(computationPositionName);
 				continue;
 			}
 
 			if (computationTypeName == "Y") {
-				Row row = operationalInfoSheet.createRow(count++);
+				Row row = operationalInfoSheet.createRow(rowCount++);
 				Cell cell = row.createCell(1);
 				cell.setCellValue(computationPositionName);
 				continue;
 			}
 
-			Row row = operationalInfoSheet.createRow(count++);
+			Row row = operationalInfoSheet.createRow(rowCount++);
 
 			// set numbering
 			if (computationTypeName == " Поз. Л.С. ") {
@@ -147,7 +157,7 @@ public class OperationalInfoExcelFileCreator {
 
 			// set amount unit cost
 			Cell cell4 = row.createCell(4);
-			cell4.setCellFormula("F" + count + "/" + "D" + count);
+			cell4.setCellFormula("F" + rowCount + "/" + "D" + rowCount);
 			cell4.setCellStyle(centeredStyle);
 
 			// set computationPositionContractPrice
@@ -158,22 +168,23 @@ public class OperationalInfoExcelFileCreator {
 
 			// set the sum of the number of works per period
 			Cell cell6 = row.createCell(6);
-			cell6.setCellFormula("SUM(K" + count + ":" + "M" + count + ")");
+			cell6.setCellFormula(
+					"SUM(K" + rowCount + ":" + "M" + rowCount + ")");
 			cell6.setCellStyle(centeredStyle);
 
 			// the cost of the work performed
 			Cell cell7 = row.createCell(7);
-			cell7.setCellFormula("E" + count + "*" + "G" + count);
+			cell7.setCellFormula("E" + rowCount + "*" + "G" + rowCount);
 			cell7.setCellStyle(centeredStyle);
 
 			// the remainder of the completed works
 			Cell cell8 = row.createCell(8);
-			cell8.setCellFormula("D" + count + "-" + "G" + count);
+			cell8.setCellFormula("D" + rowCount + "-" + "G" + rowCount);
 			cell8.setCellStyle(centeredStyle);
 
 			// the price of the remaining work performed
 			Cell cell9 = row.createCell(9);
-			cell9.setCellFormula("I" + count + "*" + "E" + count);
+			cell9.setCellFormula("I" + rowCount + "*" + "E" + rowCount);
 			cell9.setCellStyle(centeredStyle);
 
 			// blank cells
