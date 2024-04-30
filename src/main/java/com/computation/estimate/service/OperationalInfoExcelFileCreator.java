@@ -46,7 +46,7 @@ public class OperationalInfoExcelFileCreator {
 		try (XSSFWorkbook operationalInfoWorkbook = new XSSFWorkbook()) {
 			XSSFSheet registerSheet = (XSSFSheet) operationalInfoWorkbook
 					.createSheet("Реєстр");
-			Sheet operationalInfoSheet = operationalInfoWorkbook
+			XSSFSheet operationalInfoSheet = operationalInfoWorkbook
 					.createSheet("відомість обємів робіт");
 
 			// freeze 4 row
@@ -153,8 +153,9 @@ public class OperationalInfoExcelFileCreator {
 	}
 
 	private void writeComputationPositionsToOperationalInfoSheet(
-			Sheet operationalInfoSheet,
-			List<ComputationPosition> computationPositions, Workbook workbook) {
+			XSSFSheet operationalInfoSheet,
+			List<ComputationPosition> computationPositions,
+			XSSFWorkbook workbook) {
 
 		CellStyle computationPositionNameStyle = getFontWith10HeightStyle(
 				workbook);
@@ -309,6 +310,21 @@ public class OperationalInfoExcelFileCreator {
 			// blank cells
 			Cell cell10 = row.createCell(10);
 			cell10.setCellStyle(centeredStyle);
+
+			cell10.setCellFormula(
+					"IF(SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
+							+ "'відомість обємів робіт'!K$2,registerOfWorks[Кошторис],"
+							+ "'відомість обємів робіт'!$B$5,registerOfWorks[Розділ],"
+							+ "'відомість обємів робіт'!$B$6,registerOfWorks[Підрозділ],"
+							+ "'відомість обємів робіт'!$B$7,registerOfWorks[Назва робіт],"
+							+ "'відомість обємів робіт'!$B" + rowCount
+							+ ")=0,\" \","
+							+ "SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
+							+ "'відомість обємів робіт'!K$2,registerOfWorks[Кошторис],"
+							+ "'відомість обємів робіт'!$B$5,registerOfWorks[Розділ],"
+							+ "'відомість обємів робіт'!$B$6,registerOfWorks[Підрозділ],"
+							+ "'відомість обємів робіт'!$B$7,registerOfWorks[Назва робіт],"
+							+ "'відомість обємів робіт'!$B" + rowCount + "))");
 			Cell cell11 = row.createCell(11);
 			cell11.setCellStyle(centeredStyle);
 			Cell cell12 = row.createCell(12);
@@ -444,6 +460,7 @@ public class OperationalInfoExcelFileCreator {
 
 		var table = sheet.createTable(area);
 		table.setDisplayName("registerOfWorks");
+		table.setName("registerOfWorks");
 
 		sheet.setColumnWidth(0, 85 * 30);
 		sheet.setColumnWidth(1, 77 * 30);
