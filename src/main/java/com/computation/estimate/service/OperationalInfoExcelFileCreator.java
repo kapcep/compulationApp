@@ -85,51 +85,90 @@ public class OperationalInfoExcelFileCreator {
 
 		int countNumberingOfComputationPositions = 1;
 		String computationNumberAndNameTemp = "";
-		String sectionName = "";
-		String subSectionName = "";
 
 		int rowCount = 4;
+		int countSection = 1;
 		for (int i = 0; i < computationPositions.size(); i++) {
 
-			final ComputationPosition computationPosition = computationPositions
+			final ComputationPosition computationCurrentPosition = computationPositions
 					.get(i);
-			final String computationTypeName = computationPosition
+
+			ComputationPosition computationPreviousPosition = null;
+			String computationPreviousTypeName = "";
+			String computationPreviousPositionName = "";
+
+			if (i != 0) {
+				computationPreviousPosition = computationPositions.get(i - 1);
+				computationPreviousTypeName = computationPreviousPosition
+						.getComputationTypePosition().getComputationTypeName();
+				computationPreviousPositionName = computationPreviousPosition
+						.getComputationPositionName();
+			}
+
+			final String computationCurrentTypeName = computationCurrentPosition
 					.getComputationTypePosition().getComputationTypeName();
-			String computationPositionName = computationPosition
+
+			String computationCurrentPositionName = computationCurrentPosition
 					.getComputationPositionName();
-			String computationNumberAndName = computationPosition
+			String computationCurrentNumberAndName = computationCurrentPosition
 					.getComputation().getComputationNumber() + " "
-					+ computationPosition.getComputation().getComputationName();
+					+ computationCurrentPosition.getComputation()
+							.getComputationName();
 
-			if (computationTypeName == "H") {
+			if (computationCurrentTypeName == "H") {
 				continue;
 			}
 
-			if (computationNumberAndNameTemp != computationNumberAndName) {
+			if (!computationNumberAndNameTemp
+					.equals(computationCurrentNumberAndName)) {
+				countSection = 1;
 				Row row = operationalInfoSheet.createRow(rowCount++);
 				Cell cell = row.createCell(1);
-				cell.setCellValue(computationNumberAndName);
-				computationNumberAndNameTemp = computationNumberAndName;
+				cell.setCellValue("ЛК " + computationCurrentNumberAndName);
+				computationNumberAndNameTemp = computationCurrentNumberAndName
+						.toString();
+
+				CellStyle computationNumberAndNameStyle = returnHeaderRowStyle(
+						workbook, IndexedColors.SEA_GREEN.getIndex());
+
+				cell.setCellStyle(computationNumberAndNameStyle);
+
+				formatRow(row, computationNumberAndNameStyle);
 			}
 
-			if (computationTypeName == "R") {
+			if (computationCurrentTypeName == "R") {
+
 				Row row = operationalInfoSheet.createRow(rowCount++);
 				Cell cell = row.createCell(1);
-				cell.setCellValue(computationPositionName);
+				cell.setCellValue("Розділ " + countSection + ". "
+						+ computationCurrentPositionName);
+				CellStyle sectionStyle = returnHeaderRowStyle(workbook,
+						IndexedColors.LIGHT_ORANGE.getIndex());
+
+				cell.setCellStyle(sectionStyle);
+
+				countSection++;
+				formatRow(row, sectionStyle);
+
 				continue;
 			}
 
-			if (computationTypeName == "Y") {
-				Row row = operationalInfoSheet.createRow(rowCount++);
-				Cell cell = row.createCell(1);
-				cell.setCellValue(computationPositionName);
+			if (computationPreviousTypeName == "R"
+					&& computationCurrentTypeName != "Y") {
+				rowCount = createSubSectionRow(operationalInfoSheet, workbook,
+						rowCount, computationPreviousPositionName);
+			}
+
+			if (computationCurrentTypeName == "Y") {
+				rowCount = createSubSectionRow(operationalInfoSheet, workbook,
+						rowCount, computationCurrentPositionName);
 				continue;
 			}
 
 			Row row = operationalInfoSheet.createRow(rowCount++);
 
 			// set numbering
-			if (computationTypeName == " Поз. Л.С. ") {
+			if (computationCurrentTypeName == " Поз. Л.С. ") {
 				Cell cell0 = row.createCell(0);
 				cell0.setCellValue(countNumberingOfComputationPositions++);
 				cell0.setCellStyle(centeredStyle);
@@ -140,19 +179,19 @@ public class OperationalInfoExcelFileCreator {
 			// set computationPositionName
 			Cell cell1 = row.createCell(1);
 			cell1.setCellValue(
-					computationPosition.getComputationPositionName());
+					computationCurrentPosition.getComputationPositionName());
 			cell1.setCellStyle(computationPositionNameStyle);
 
 			// set computationPositionUnitOfMeasurement
 			Cell cell2 = row.createCell(2);
-			cell2.setCellValue(computationPosition
+			cell2.setCellValue(computationCurrentPosition
 					.getComputationPositionUnitOfMeasurement()
 					.getComputationPositionUnitOfMeasurementName());
 			cell2.setCellStyle(centeredStyle);
 
 			// set amount
 			Cell cell3 = row.createCell(3);
-			cell3.setCellValue(computationPosition.getAmount());
+			cell3.setCellValue(computationCurrentPosition.getAmount());
 			cell3.setCellStyle(centeredStyle);
 
 			// set amount unit cost
@@ -162,8 +201,8 @@ public class OperationalInfoExcelFileCreator {
 
 			// set computationPositionContractPrice
 			Cell cell5 = row.createCell(5);
-			cell5.setCellValue(
-					computationPosition.getComputationPositionContractPrice());
+			cell5.setCellValue(computationCurrentPosition
+					.getComputationPositionContractPrice());
 			cell5.setCellStyle(centeredStyle);
 
 			// set the sum of the number of works per period
@@ -196,6 +235,42 @@ public class OperationalInfoExcelFileCreator {
 			cell12.setCellStyle(centeredStyle);
 		}
 
+	}
+
+	private int createSubSectionRow(Sheet operationalInfoSheet,
+			Workbook workbook, int rowCount, String computationPositionName) {
+		Row row = operationalInfoSheet.createRow(rowCount++);
+		Cell cell = row.createCell(1);
+		cell.setCellValue(computationPositionName);
+
+		CellStyle subSectionStyle = returnHeaderRowStyle(workbook,
+				IndexedColors.LEMON_CHIFFON.getIndex());
+		cell.setCellStyle(subSectionStyle);
+		formatRow(row, subSectionStyle);
+		return rowCount;
+	}
+
+	private void formatRow(Row row, CellStyle sectionStyle) {
+		for (int j = 0; j < 13; j++) {
+			if (j == 1) {
+				continue;
+			}
+			Cell rowStyleCell = row.createCell(j);
+			rowStyleCell.setCellStyle(sectionStyle);
+		}
+	}
+
+	private CellStyle returnHeaderRowStyle(Workbook workbook,
+			short colorIndex) {
+		CellStyle sectionStyle = workbook.createCellStyle();
+		Font font = getFontWith10height(workbook);
+		font.setBold(true);
+		sectionStyle.setFont(font);
+
+		sectionStyle.setFillForegroundColor(colorIndex);
+		sectionStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		return sectionStyle;
 	}
 
 	private Workbook getOutboxExcelWorkbook(String outboxExcelFilePath) {
@@ -478,10 +553,7 @@ public class OperationalInfoExcelFileCreator {
 		CellStyle dateFormatStyle = workbook.createCellStyle();
 		DataFormat format = workbook.createDataFormat();
 		dateFormatStyle.setDataFormat(format.getFormat("dd.MM"));
-		dateFormatStyle.setBorderBottom(BorderStyle.THIN);
-		dateFormatStyle.setBorderTop(BorderStyle.THIN);
-		dateFormatStyle.setBorderLeft(BorderStyle.THIN);
-		dateFormatStyle.setBorderRight(BorderStyle.THIN);
+		setBordersToCell(dateFormatStyle);
 		dateFormatStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		dateFormatStyle.setAlignment(HorizontalAlignment.CENTER);
 
