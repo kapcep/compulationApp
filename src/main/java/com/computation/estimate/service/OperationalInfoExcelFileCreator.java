@@ -1,6 +1,8 @@
 package com.computation.estimate.service;
 
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Calendar;
@@ -36,6 +38,7 @@ import com.computation.estimate.entity.ComputationPosition;
 
 public class OperationalInfoExcelFileCreator {
 	final static String outboxExcelFilePath = "files/451_du.xlsx";
+	final static String operationalInfoFilePath = "files/operational_info";
 
 	public static void main(String[] args) {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
@@ -83,13 +86,50 @@ public class OperationalInfoExcelFileCreator {
 					ComparisonOperator.LT, "0", IndexedColors.RED.index,
 					"I8:I" + (operationalInfoSheet.getLastRowNum() + 1));
 
-			try (FileOutputStream outputStream = new FileOutputStream(
-					"files/operational_info_file.xlsx")) {
-				operationalInfoWorkbook.write(outputStream);
-			}
+			operationalInfoExcelFileCreator.writeExcelWorkbookToFile(
+					operationalInfoWorkbook, operationalInfoFilePath);
 
-			System.out.println("Excel файл створено успішно!");
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void writeExcelWorkbookToFile(XSSFWorkbook operationalInfoWorkbook,
+			String fileName) throws FileNotFoundException, IOException {
+
+		String extension = ".xlsx";
+
+		File file = new File(fileName + extension);
+
+		try {
+			if (file.createNewFile()) {
+				saveWorkbook(operationalInfoWorkbook, file);
+			} else {
+				int index = 1;
+				File newFile;
+
+				do {
+					newFile = new File(
+							fileName + " (" + index + ")" + extension);
+					index++;
+				} while (newFile.exists());
+
+				if (newFile.createNewFile()) {
+					saveWorkbook(operationalInfoWorkbook, newFile);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("Excel file created successfully!");
+	}
+
+	private static void saveWorkbook(XSSFWorkbook workbook, File file) {
+		try (FileOutputStream outputStream = new FileOutputStream(file)) {
+			workbook.write(outputStream);
+		} catch (IOException e) {
+			System.out.println("Помилка при збереженні workbook.");
 			e.printStackTrace();
 		}
 	}
