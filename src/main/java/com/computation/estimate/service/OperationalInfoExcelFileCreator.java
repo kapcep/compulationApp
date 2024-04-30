@@ -10,13 +10,17 @@ import java.util.List;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.ComparisonOperator;
+import org.apache.poi.ss.usermodel.ConditionalFormattingRule;
 import org.apache.poi.ss.usermodel.DataFormat;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.PatternFormatting;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.SheetConditionalFormatting;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -45,8 +49,11 @@ public class OperationalInfoExcelFileCreator {
 			// freeze 4 row
 			operationalInfoSheet.createFreezePane(2, 4);
 
+			// create register table
 			operationalInfoExcelFileCreator.createRegisterTable(registerSheet,
 					operationalInfoWorkbook);
+
+			// create operational info headers in operationalInfoSheet
 			operationalInfoExcelFileCreator.createOperationalInfoHeaderToTable(
 					operationalInfoSheet, operationalInfoWorkbook);
 
@@ -56,10 +63,25 @@ public class OperationalInfoExcelFileCreator {
 			List<ComputationPosition> computationPositions = computationInfoFromExcelFile
 					.getComputationPosition(outboxExcelWorkbook);
 
+			// write сomputation positions to operational info sheet
 			operationalInfoExcelFileCreator
-					.writeComputitionPositionsToOperationalInfoSheet(
+					.writeComputationPositionsToOperationalInfoSheet(
 							operationalInfoSheet, computationPositions,
 							operationalInfoWorkbook);
+
+			// add conditionalFormatting rules
+
+			SheetConditionalFormatting conditionalFormatting = operationalInfoSheet
+					.getSheetConditionalFormatting();
+
+			operationalInfoExcelFileCreator.createConditionalFormattingRule(
+					operationalInfoSheet, conditionalFormatting,
+					ComparisonOperator.GT, "0", IndexedColors.YELLOW.index,
+					"G8:G" + (operationalInfoSheet.getLastRowNum() + 1));
+			operationalInfoExcelFileCreator.createConditionalFormattingRule(
+					operationalInfoSheet, conditionalFormatting,
+					ComparisonOperator.LT, "0", IndexedColors.RED.index,
+					"I8:I" + (operationalInfoSheet.getLastRowNum() + 1));
 
 			try (FileOutputStream outputStream = new FileOutputStream(
 					"files/operational_info_file.xlsx")) {
@@ -72,7 +94,25 @@ public class OperationalInfoExcelFileCreator {
 		}
 	}
 
-	private void writeComputitionPositionsToOperationalInfoSheet(
+	private SheetConditionalFormatting createConditionalFormattingRule(
+			Sheet operationalInfoSheet,
+			SheetConditionalFormatting conditionalFormatting,
+			byte comparisonOperator, String formula, short colorIndex,
+			String regionsString) {
+
+		ConditionalFormattingRule rule = conditionalFormatting
+				.createConditionalFormattingRule(comparisonOperator, formula);
+		PatternFormatting fill = rule.createPatternFormatting();
+		fill.setFillBackgroundColor(colorIndex);
+		fill.setFillPattern(PatternFormatting.SOLID_FOREGROUND);
+
+		CellRangeAddress[] regions = {
+				CellRangeAddress.valueOf(regionsString) };
+		conditionalFormatting.addConditionalFormatting(regions, rule);
+		return conditionalFormatting;
+	}
+
+	private void writeComputationPositionsToOperationalInfoSheet(
 			Sheet operationalInfoSheet,
 			List<ComputationPosition> computationPositions, Workbook workbook) {
 
