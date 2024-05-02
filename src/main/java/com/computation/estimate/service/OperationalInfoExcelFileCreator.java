@@ -39,6 +39,9 @@ import com.computation.estimate.entity.ComputationPosition;
 public class OperationalInfoExcelFileCreator {
 	final static String outboxExcelFilePath = "files/451_du.xlsx";
 	final static String operationalInfoFilePath = "files/operational_info";
+	private String computationNameAddress = "";
+	private String sectionNameAddress = "";
+	private String subSectionNameAddress = "";
 
 	public static void main(String[] args) {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
@@ -200,6 +203,7 @@ public class OperationalInfoExcelFileCreator {
 				continue;
 			}
 
+			// add computationNumberAndName
 			if (!computationNumberAndNameTemp
 					.equals(computationCurrentNumberAndName)) {
 				countSection = 1;
@@ -214,9 +218,13 @@ public class OperationalInfoExcelFileCreator {
 
 				cell.setCellStyle(computationNumberAndNameStyle);
 
+				computationNameAddress = cutSheetNameAndConvertCellAddressToDollarFormat(
+						new CellReference(cell).formatAsString());
+
 				formatRow(row, computationNumberAndNameStyle);
 			}
 
+			// add sectionName
 			if (computationCurrentTypeName == "R") {
 
 				Row row = operationalInfoSheet.createRow(rowCount++);
@@ -228,18 +236,22 @@ public class OperationalInfoExcelFileCreator {
 
 				cell.setCellStyle(sectionStyle);
 
+				sectionNameAddress = cutSheetNameAndConvertCellAddressToDollarFormat(
+						new CellReference(cell).formatAsString());
 				countSection++;
 				formatRow(row, sectionStyle);
 
 				continue;
 			}
 
+			// add subSectionName if there is no subsection after the section
 			if (computationPreviousTypeName == "R"
 					&& computationCurrentTypeName != "Y") {
 				rowCount = createSubSectionRow(operationalInfoSheet, workbook,
 						rowCount, computationPreviousPositionName);
 			}
 
+			// add subSectionName
 			if (computationCurrentTypeName == "Y") {
 				rowCount = createSubSectionRow(operationalInfoSheet, workbook,
 						rowCount, computationCurrentPositionName);
@@ -309,28 +321,40 @@ public class OperationalInfoExcelFileCreator {
 
 			// blank cells
 			Cell cell10 = row.createCell(10);
-			cell10.setCellStyle(centeredStyle);
 
+			cell10.setCellStyle(centeredStyle);
 			cell10.setCellFormula(
-					"IF(SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
-							+ "'відомість обємів робіт'!K$2,registerOfWorks[Кошторис],"
-							+ "'відомість обємів робіт'!$B$5,registerOfWorks[Розділ],"
-							+ "'відомість обємів робіт'!$B$6,registerOfWorks[Підрозділ],"
-							+ "'відомість обємів робіт'!$B$7,registerOfWorks[Назва робіт],"
-							+ "'відомість обємів робіт'!$B" + rowCount
-							+ ")=0,\" \","
-							+ "SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
-							+ "'відомість обємів робіт'!K$2,registerOfWorks[Кошторис],"
-							+ "'відомість обємів робіт'!$B$5,registerOfWorks[Розділ],"
-							+ "'відомість обємів робіт'!$B$6,registerOfWorks[Підрозділ],"
-							+ "'відомість обємів робіт'!$B$7,registerOfWorks[Назва робіт],"
-							+ "'відомість обємів робіт'!$B" + rowCount + "))");
+					returnAmountOfCompletedWorkFormulaValue("K$2", rowCount));
 			Cell cell11 = row.createCell(11);
 			cell11.setCellStyle(centeredStyle);
+			cell11.setCellFormula(
+					returnAmountOfCompletedWorkFormulaValue("L$2", rowCount));
 			Cell cell12 = row.createCell(12);
 			cell12.setCellStyle(centeredStyle);
+			cell12.setCellFormula(
+					returnAmountOfCompletedWorkFormulaValue("M$2", rowCount));
 		}
 
+	}
+
+	private String returnAmountOfCompletedWorkFormulaValue(
+			String dateAddressString, int rowCount) {
+		return "IF(SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
+				+ "'відомість обємів робіт'!" + dateAddressString
+				+ ",registerOfWorks[Кошторис]," + "'відомість обємів робіт'!"
+				+ computationNameAddress + ",registerOfWorks[Розділ],"
+				+ "'відомість обємів робіт'!" + sectionNameAddress
+				+ ",registerOfWorks[Підрозділ]," + "'відомість обємів робіт'!"
+				+ subSectionNameAddress + ",registerOfWorks[Назва робіт],"
+				+ "'відомість обємів робіт'!$B" + rowCount + ")=0,\" \","
+				+ "SUMIFS(registerOfWorks[К-сть],registerOfWorks[Дата],"
+				+ "'відомість обємів робіт'!" + dateAddressString
+				+ ",registerOfWorks[Кошторис]," + "'відомість обємів робіт'!"
+				+ computationNameAddress + ",registerOfWorks[Розділ],"
+				+ "'відомість обємів робіт'!" + sectionNameAddress
+				+ ",registerOfWorks[Підрозділ]," + "'відомість обємів робіт'!"
+				+ subSectionNameAddress + ",registerOfWorks[Назва робіт],"
+				+ "'відомість обємів робіт'!$B" + rowCount + "))";
 	}
 
 	private int createSubSectionRow(Sheet operationalInfoSheet,
@@ -342,6 +366,8 @@ public class OperationalInfoExcelFileCreator {
 		CellStyle subSectionStyle = returnHeaderRowStyle(workbook,
 				IndexedColors.LEMON_CHIFFON.getIndex());
 		cell.setCellStyle(subSectionStyle);
+		subSectionNameAddress = cutSheetNameAndConvertCellAddressToDollarFormat(
+				new CellReference(cell).formatAsString());
 		formatRow(row, subSectionStyle);
 		return rowCount;
 	}
@@ -714,5 +740,16 @@ public class OperationalInfoExcelFileCreator {
 		style.setBorderLeft(BorderStyle.THIN);
 		style.setBorderRight(BorderStyle.THIN);
 		style.setBorderTop(BorderStyle.THIN);
+	}
+
+	private String cutSheetNameAndConvertCellAddressToDollarFormat(
+			String fullCellAddressString) {
+
+		String[] parts = fullCellAddressString.split("!");
+		String part2 = parts[1];
+		StringBuilder result = new StringBuilder(part2);
+		result.insert(0, "$").insert(2, "$");
+
+		return result.toString();
 	}
 }
