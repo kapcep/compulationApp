@@ -127,8 +127,9 @@ public class GetComputationInfoFromExcelFile {
 			// get computationPositionContractPrice
 			double computationPositionContractPrice = 0;
 
-			if (computationTypePosition.getComputationTypeName()
-					.equals(" Поз. Л.С. ")) {
+			if (computationPositionContractPrices.size() > count
+					&& computationTypePosition.getComputationTypeName()
+							.equals(" Поз. Л.С. ")) {
 				count++;
 				computationPositionContractPrice = computationPositionContractPrices
 						.get(count);

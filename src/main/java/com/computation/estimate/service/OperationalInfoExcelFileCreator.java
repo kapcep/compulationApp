@@ -38,7 +38,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import com.computation.estimate.entity.ComputationPosition;
 
 public class OperationalInfoExcelFileCreator {
-	final static String outboxExcelFilePath = "files/outbox_file.xlsx";
+	final static String outboxExcelFilePath = "files/outbox_file.xls";
 	final static String operationalInfoFilePath = "files/operational_info";
 	private String computationNameAddress = "";
 	private String sectionNameAddress = "";
