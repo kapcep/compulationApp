@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -277,14 +278,23 @@ public class OperationalInfoExcelFileCreator {
 
 			// set computationPositionUnitOfMeasurement
 			Cell cell2 = row.createCell(2);
-			cell2.setCellValue(computationCurrentPosition
+			String computationPositionUnitOfMeasurementName = computationCurrentPosition
 					.getComputationPositionUnitOfMeasurement()
-					.getComputationPositionUnitOfMeasurementName());
+					.getComputationPositionUnitOfMeasurementName();
+			int multiplierOfAmount = returnMultiplierOfAmount(
+					computationPositionUnitOfMeasurementName);
+
+			cell2.setCellValue(
+					removeMultiplierComputationPositionUnitOfMeasurementName(
+							computationPositionUnitOfMeasurementName));
 			cell2.setCellStyle(centeredStyle);
 
 			// set amount
 			Cell cell3 = row.createCell(3);
-			cell3.setCellValue(computationCurrentPosition.getAmount());
+
+			double amount = computationCurrentPosition.getAmount();
+			cell3.setCellValue(
+					multiplyIntegerAndDouble(multiplierOfAmount, amount));
 			cell3.setCellStyle(centeredStyle);
 
 			// set amount unit cost
@@ -752,4 +762,46 @@ public class OperationalInfoExcelFileCreator {
 
 		return result.toString();
 	}
+
+	private int returnMultiplierOfAmount(String str) {
+
+		String numberStr = str.replaceAll("^\\D*(\\d+).*", "$1");
+
+		if (numberStr.isEmpty()) {
+			numberStr = "1";
+		} else if (!Character.isDigit(str.charAt(0))) {
+			numberStr = "1";
+		}
+
+		int number = Integer.parseInt(numberStr);
+		return number;
+	}
+
+	private double multiplyIntegerAndDouble(int intNumber,
+			double doubleNumber) {
+
+		BigDecimal intBigDecimal = BigDecimal.valueOf(intNumber);
+
+		BigDecimal doubleBigDecimal = BigDecimal.valueOf(doubleNumber);
+
+		BigDecimal result = intBigDecimal.multiply(doubleBigDecimal);
+
+		return result.doubleValue();
+	}
+
+	private String removeMultiplierComputationPositionUnitOfMeasurementName(
+			String input) {
+
+		int index = 0;
+		while (index < input.length() && (Character.isDigit(input.charAt(index))
+				|| input.charAt(index) == ' ')) {
+			index++;
+		}
+
+		String result = input.substring(index);
+
+		return result;
+
+	}
+
 }
