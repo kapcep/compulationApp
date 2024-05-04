@@ -39,7 +39,7 @@ public class GetComputationInfoFromExcelFile {
 	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
 
-	final static String computationPositionContractPriceExcelFilePath = "files/U_393_ДЦ_КК_2.xls";
+	final static String computationPositionContractPriceExcelFilePath = "files/contract_price_file.xls";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	private List<Computation> getComputations(Workbook workbook) {
