@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
@@ -43,10 +44,13 @@ public class OperationalInfoExcelFileCreator {
 	private String computationNameAddress = "";
 	private String sectionNameAddress = "";
 	private String subSectionNameAddress = "";
+	private static String objectName = "НАЗВА ОБЄКТА";
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws EncryptedDocumentException,
+			FileNotFoundException, IOException {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
-		GetComputationInfoFromExcelFile computationInfoFromExcelFile = new GetComputationInfoFromExcelFile();
+		ComputationInfoFromExcelFileGetter computationInfoFromExcelFile = new ComputationInfoFromExcelFileGetter(
+				outboxExcelFilePath);
 		try (XSSFWorkbook operationalInfoWorkbook = new XSSFWorkbook()) {
 			XSSFSheet registerSheet = (XSSFSheet) operationalInfoWorkbook
 					.createSheet("Реєстр");
@@ -59,6 +63,9 @@ public class OperationalInfoExcelFileCreator {
 			// create register table
 			operationalInfoExcelFileCreator.createRegisterTable(registerSheet,
 					operationalInfoWorkbook);
+
+			// get object name from outbox file
+			objectName = computationInfoFromExcelFile.getObjectName();
 
 			// create operational info headers in operationalInfoSheet
 			operationalInfoExcelFileCreator.createOperationalInfoHeaderToTable(
@@ -544,7 +551,7 @@ public class OperationalInfoExcelFileCreator {
 		Row row0 = sheet.createRow(0);
 		row0.setHeight((short) 900);
 		Cell cell00 = row0.createCell(0);
-		cell00.setCellValue("НАЗВА ОБЄКТА");
+		cell00.setCellValue(objectName);
 		cell00.setCellStyle(
 				centerAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle);
 

@@ -2,6 +2,7 @@ package com.computation.estimate.service;
 
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.poi.EncryptedDocumentException;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
@@ -31,16 +34,30 @@ import com.computation.estimate.entity.MarkOfResourceDescrition;
 import com.computation.estimate.entity.ResourceDescription;
 import com.computation.estimate.entity.ResourceDescriptionUnitOfMeasurement;
 
-public class GetComputationInfoFromExcelFile {
+public class ComputationInfoFromExcelFileGetter {
 
 	private final static String generalDataOfComputationSheetName = "5_Загальні_дані_про_ЛК";
 	private final static String computationPositionSheetName = "6_Позиція_ЛК";
 	private final static String resourceDescriptionSheetName = "7_Опис_ресурсу";
+	private final static String generalDataSheetName = "2_загальні_дані_про_будову";
 	private final static String computationPositionFilePath = "files/computationPosition_";
 	private final static String resourceDescriptionFilePath = "files/resourceDescription_";
+	private String objectName;
 
 	final static String computationPositionContractPriceExcelFilePath = "files/contract_price_file.xls";
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	public ComputationInfoFromExcelFileGetter(String workbookName)
+			throws EncryptedDocumentException, FileNotFoundException,
+			IOException {
+		HSSFWorkbook workbook = (HSSFWorkbook) WorkbookFactory
+				.create(new FileInputStream(workbookName));
+		this.objectName = getObjectName(workbook);
+	}
+
+	public String getObjectName() {
+		return objectName;
+	}
 
 	private List<Computation> getComputations(Workbook workbook) {
 
@@ -66,8 +83,9 @@ public class GetComputationInfoFromExcelFile {
 	}
 
 	public List<ComputationPosition> getComputationPosition(Workbook workbook) {
-		Sheet sheet = workbook.getSheet(computationPositionSheetName);
-		int lastRowNum = sheet.getLastRowNum();
+		Sheet computationPositionSheet = workbook
+				.getSheet(computationPositionSheetName);
+		int lastRowNum = computationPositionSheet.getLastRowNum();
 		List<ComputationPosition> computationPositions = new ArrayList<>();
 		var computations = getComputations(workbook);
 		var computationPositionUnitOfMeasurements = getComputationPositionUnitOfMeasurements(
@@ -76,7 +94,7 @@ public class GetComputationInfoFromExcelFile {
 		int count = 0;
 
 		for (int i = 1; i < lastRowNum + 1; i++) {
-			Row row = sheet.getRow(i);
+			Row row = computationPositionSheet.getRow(i);
 			// get computationPositionId
 			final int computationPositionId = (int) row.getCell(0)
 					.getNumericCellValue();
@@ -149,6 +167,14 @@ public class GetComputationInfoFromExcelFile {
 		}
 
 		return computationPositions;
+	}
+
+	private String getObjectName(Workbook workbook) {
+		Sheet generalDataSheet = workbook.getSheet(generalDataSheetName);
+		Row row = generalDataSheet.getRow(1);
+		Cell cell = row.getCell(5);
+		objectName = cell.getStringCellValue();
+		return objectName;
 	}
 
 	public List<ResourceDescription> getResourceDescription(Workbook workbook) {
