@@ -310,8 +310,14 @@ public class OperationalInfoExcelFileCreator {
 
 			// set the sum of the number of works per period
 			Cell cell6 = row.createCell(6);
-			cell6.setCellFormula(
-					"SUM(K" + rowCount + ":" + "M" + rowCount + ")");
+			cell6.setCellFormula("SUMIFS(registerOfWorks[К-сть],"
+					+ "registerOfWorks[Кошторис]," + "'відомість обємів робіт'!"
+					+ computationNameAddress + ",registerOfWorks[Розділ],"
+					+ "'відомість обємів робіт'!" + sectionNameAddress
+					+ ",registerOfWorks[Підрозділ],"
+					+ "'відомість обємів робіт'!" + subSectionNameAddress
+					+ ",registerOfWorks[Назва робіт],"
+					+ "'відомість обємів робіт'!$B" + rowCount + ")");
 			cell6.setCellStyle(centeredStyle);
 
 			// the cost of the work performed
