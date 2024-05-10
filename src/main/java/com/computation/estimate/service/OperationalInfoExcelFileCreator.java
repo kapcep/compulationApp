@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 
 import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ComparisonOperator;
@@ -37,6 +36,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.computation.estimate.entity.ComputationPosition;
+import com.computation.estimate.utils.CellStyleCreatorUtil;
 
 public class OperationalInfoExcelFileCreator {
 	final static String outboxExcelFilePath = "files/outbox_file.xls";
@@ -51,6 +51,7 @@ public class OperationalInfoExcelFileCreator {
 		OperationalInfoExcelFileCreator operationalInfoExcelFileCreator = new OperationalInfoExcelFileCreator();
 		ComputationInfoFromExcelFileGetter computationInfoFromExcelFile = new ComputationInfoFromExcelFileGetter(
 				outboxExcelFilePath);
+		StandardsOfMachineSheetCreator standardsOfMachineSheetCreator = new StandardsOfMachineSheetCreator();
 		try (XSSFWorkbook operationalInfoWorkbook = new XSSFWorkbook()) {
 			XSSFSheet registerSheet = (XSSFSheet) operationalInfoWorkbook
 					.createSheet("Реєстр");
@@ -97,6 +98,11 @@ public class OperationalInfoExcelFileCreator {
 					ComparisonOperator.LT, "0", IndexedColors.RED.index,
 					"I8:I" + (operationalInfoSheet.getLastRowNum() + 1));
 
+			// create standards of machine sheet
+			standardsOfMachineSheetCreator
+					.createStandardsOfMachineSheet(operationalInfoWorkbook);
+
+			// write ExcelWorkbookToFile
 			operationalInfoExcelFileCreator.writeExcelWorkbookToFile(
 					operationalInfoWorkbook, operationalInfoFilePath);
 
@@ -168,12 +174,13 @@ public class OperationalInfoExcelFileCreator {
 			List<ComputationPosition> computationPositions,
 			XSSFWorkbook workbook) {
 
-		CellStyle computationPositionNameStyle = getFontWith10HeightStyle(
-				workbook);
+		CellStyle computationPositionNameStyle = CellStyleCreatorUtil
+				.getFontWith10HeightStyle(workbook);
 		computationPositionNameStyle.setAlignment(HorizontalAlignment.LEFT);
 		computationPositionNameStyle.setWrapText(true);
 
-		CellStyle centeredStyle = getFontWith10HeightStyle(workbook);
+		CellStyle centeredStyle = CellStyleCreatorUtil
+				.getFontWith10HeightStyle(workbook);
 
 		int countNumberingOfComputationPositions = 1;
 		String computationNumberAndNameTemp = "";
@@ -408,7 +415,7 @@ public class OperationalInfoExcelFileCreator {
 	private CellStyle returnHeaderRowStyle(Workbook workbook,
 			short colorIndex) {
 		CellStyle sectionStyle = workbook.createCellStyle();
-		Font font = getFontWith10height(workbook);
+		Font font = CellStyleCreatorUtil.getFontWith10height(workbook);
 		font.setBold(true);
 		sectionStyle.setFont(font);
 
@@ -431,13 +438,16 @@ public class OperationalInfoExcelFileCreator {
 	}
 
 	private void createRegisterTable(XSSFSheet sheet, XSSFWorkbook workbook) {
-		CellStyle registerRowCenteredStyle = getFontWith10HeightStyle(workbook);
+		CellStyle registerRowCenteredStyle = CellStyleCreatorUtil
+				.getFontWith10HeightStyle(workbook);
 
-		CellStyle registerRowRightStyle = getFontWith10HeightStyle(workbook);
+		CellStyle registerRowRightStyle = CellStyleCreatorUtil
+				.getFontWith10HeightStyle(workbook);
 		registerRowRightStyle.setAlignment(HorizontalAlignment.LEFT);
 
-		CellStyle registerHeaderStyle = getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
-				workbook);
+		CellStyle registerHeaderStyle = CellStyleCreatorUtil
+				.getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
+						workbook);
 
 		registerHeaderStyle.setFillForegroundColor(
 				IndexedColors.GREY_25_PERCENT.getIndex());
@@ -529,18 +539,20 @@ public class OperationalInfoExcelFileCreator {
 			Workbook workbook) {
 
 		// centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetFont
-		CellStyle centerAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle = getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
-				workbook);
+		CellStyle centerAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle = CellStyleCreatorUtil
+				.getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
+						workbook);
 
 		// fontWith10heightStyle
-		CellStyle fontWith10HeightStyle = getFontWith10HeightStyle(workbook);
+		CellStyle fontWith10HeightStyle = CellStyleCreatorUtil
+				.getFontWith10HeightStyle(workbook);
 
 		// modifiedFontWith10Height
 		CellStyle modifiedFontWith10HeightBoldWrapTextStyle = workbook
 				.createCellStyle();
 		modifiedFontWith10HeightBoldWrapTextStyle
 				.cloneStyleFrom(fontWith10HeightStyle);
-		Font font = getFontWith10height(workbook);
+		Font font = CellStyleCreatorUtil.getFontWith10height(workbook);
 		font.setBold(true);
 		modifiedFontWith10HeightBoldWrapTextStyle.setFont(font);
 		modifiedFontWith10HeightBoldWrapTextStyle.setWrapText(true);
@@ -699,70 +711,15 @@ public class OperationalInfoExcelFileCreator {
 		CellStyle dateFormatStyle = workbook.createCellStyle();
 		DataFormat format = workbook.createDataFormat();
 		dateFormatStyle.setDataFormat(format.getFormat("dd.MM"));
-		setBordersToCell(dateFormatStyle);
+		CellStyleCreatorUtil.setBordersToCell(dateFormatStyle);
 		dateFormatStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		dateFormatStyle.setAlignment(HorizontalAlignment.CENTER);
 
-		Font font = getFontWith10height(workbook);
+		Font font = CellStyleCreatorUtil.getFontWith10height(workbook);
 		font.setBold(true);
 		dateFormatStyle.setFont(font);
 
 		return dateFormatStyle;
-	}
-
-	private CellStyle getFontWith10HeightStyle(Workbook workbook) {
-		CellStyle fontWith10HeightStyle = workbook.createCellStyle();
-		setBordersToCell(fontWith10HeightStyle);
-		fontWith10HeightStyle = returnStyleWithHorizontalAndVerticalAlignment(
-				fontWith10HeightStyle);
-
-		var fontWith10height = getFontWith10height(workbook);
-		fontWith10HeightStyle.setFont(fontWith10height);
-
-		return fontWith10HeightStyle;
-	}
-
-	private Font getFontWith10height(Workbook workbook) {
-		Font fontWith10height = workbook.createFont();
-		fontWith10height.setFontHeightInPoints((short) 10);
-		fontWith10height.setFontName("Arial");
-
-		return fontWith10height;
-	}
-
-	private CellStyle getCenterAlignAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle(
-			Workbook workbook) {
-		CellStyle centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle = workbook
-				.createCellStyle();
-		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle = returnStyleWithHorizontalAndVerticalAlignment(
-				centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle);
-		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle
-				.setWrapText(true);
-		setBordersToCell(
-				centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle);
-
-		Font fontBold = workbook.createFont();
-		fontBold.setBold(true);
-		fontBold.setFontHeightInPoints((short) 12);
-		fontBold.setFontName("Arial");
-		centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle
-				.setFont(fontBold);
-
-		return centerAlignStyleAndBoldAndHorizontalAlignmentAndVerticalAlignmanetStyle;
-	}
-
-	private CellStyle returnStyleWithHorizontalAndVerticalAlignment(
-			CellStyle fontWith10HeightStyle) {
-		fontWith10HeightStyle.setAlignment(HorizontalAlignment.CENTER);
-		fontWith10HeightStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-		return fontWith10HeightStyle;
-	}
-
-	private void setBordersToCell(CellStyle style) {
-		style.setBorderBottom(BorderStyle.THIN);
-		style.setBorderLeft(BorderStyle.THIN);
-		style.setBorderRight(BorderStyle.THIN);
-		style.setBorderTop(BorderStyle.THIN);
 	}
 
 	private String cutSheetNameAndConvertCellAddressToDollarFormat(
