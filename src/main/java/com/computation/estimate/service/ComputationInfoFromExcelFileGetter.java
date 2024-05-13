@@ -177,7 +177,7 @@ public class ComputationInfoFromExcelFileGetter {
 		return objectName;
 	}
 
-	public List<ResourceDescription> getResourceDescription(Workbook workbook) {
+	public List<ResourceDescription> getResourceDescriptions(Workbook workbook) {
 
 		Sheet sheet = workbook.getSheet(resourceDescriptionSheetName);
 		int lastRowNum = sheet.getLastRowNum();

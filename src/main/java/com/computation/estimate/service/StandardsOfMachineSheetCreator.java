@@ -1,5 +1,9 @@
 package com.computation.estimate.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+
+import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
@@ -17,12 +21,22 @@ import com.computation.estimate.utils.CellStyleCreatorUtil;
 public class StandardsOfMachineSheetCreator {
 
 	private final static String standardsOfMachineSheetName = "Таблиця маш.год";
+	final String outboxExcelFilePath = "files/outbox_file.xls";
 
 	public XSSFSheet createStandardsOfMachineSheet(
-			XSSFWorkbook operationalInfoWorkbook) {
+			XSSFWorkbook operationalInfoWorkbook)
+			throws EncryptedDocumentException, FileNotFoundException,
+			IOException {
 		XSSFSheet standardsOfMachineSheet = operationalInfoWorkbook
 				.createSheet(standardsOfMachineSheetName);
 		XSSFTable table = createTable(standardsOfMachineSheet);
+
+		ComputationInfoFromExcelFileGetter computationInfoFromExcelFile = new ComputationInfoFromExcelFileGetter(
+				outboxExcelFilePath);
+
+		var resourceDescriptions = computationInfoFromExcelFile
+				.getResourceDescriptions(operationalInfoWorkbook);
+		resourceDescriptions.forEach(System.out::println);
 
 		return standardsOfMachineSheet;
 	}
@@ -75,6 +89,10 @@ public class StandardsOfMachineSheetCreator {
 		var table = sheet.createTable(area);
 		table.setDisplayName("tbl_standardsOfMachine");
 		table.setName("tbl_standardsOfMachine");
+
+		// set columns width
+		sheet.setColumnWidth(1, 552 * 30);
+		sheet.setColumnWidth(2, 87 * 30);
 
 		return null;
 	}
